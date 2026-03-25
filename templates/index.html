@@ -1,68 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>WAF Test Lab</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WAF Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <!-- NAV -->
-    <div class="nav">
-        <div class="nav-brand">
-            <div class="nav-brand-dot"></div>
-            WAF Test Lab
-        </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-brand-dot"></div>
+      WAF Test Lab
+    </div>
+    <span class="nav-version">v1.0 · 5600</span>
+  </nav>
 
-        <div class="nav-version">v1.0 · 5600</div>
+  <!-- HOME -->
+  <div class="home-main">
+
+    <div class="home-hero">
+      <div class="home-label">
+        <span class="home-label-dot"></span>
+        Security Testing Environment
+      </div>
+      <h1 class="home-title">WAF Test Lab</h1>
+      <p class="home-desc">
+        A testing environment for Haltdos WAF. Two lab modules — each with a different
+        category of testing targets.
+      </p>
     </div>
 
-    <!-- HERO -->
-    <div class="home-main">
+    <!-- LAB CARDS -->
+    <div class="lab-cards" style="grid-template-columns: 1fr 1fr;">
 
-        <div class="home-hero">
-            <h1 class="home-title">WAF Test Lab</h1>
-            <p class="home-desc">
-                A testing environment for Haltdos WAF
-            </p>
+      <a href="/vuln/" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">01</span>
         </div>
-
-        <!-- LAB CARDS -->
-        <div class="lab-cards">
-
-            <!-- LAB 1 -->
-            <div class="lab-card" onclick="location.href='/vuln/'">
-                <div class="lab-card-title">🛡 Vulnerability Lab</div>
-                <div class="lab-card-desc">
-                    Test SQLi, XSS, SSRF and more
-                </div>
-            </div>
-
-            <!-- LAB 2 -->
-            <div class="lab-card" onclick="location.href='/rules/'">
-                <div class="lab-card-title">⚙ Rules Test Lab</div>
-                <div class="lab-card-desc">
-                    Verify WAF rules behavior
-                </div>
-            </div>
-
+        <div class="lab-card-title">🛡 Vulnerability Lab</div>
+        <div class="lab-card-desc">
+          Test SQLi, XSS, SSRF, File Upload, Command Injection and Broken Access Control
+          against the WAF using curated attack payloads.
         </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/vuln/</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a href="/rules/" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">02</span>
+        </div>
+        <div class="lab-card-title">⚙ Rules Test Lab</div>
+        <div class="lab-card-desc">
+          Verify WAF rules behavior — test header rules, redirect rules,
+          capture rules, transform rules, and more.
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/rules/</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
 
     </div>
 
-    <!-- FOOTER -->
-    <div class="footer">
-        <div>WAF Test Lab</div>
-        <div>Do not deploy publicly</div>
+  </div>
+
+  <!-- INFO BAR -->
+  <section class="info-section">
+    <div class="info-bar">
+      <div class="info-bar-marker"></div>
+      <p class="info-bar-text">
+        <strong>Usage —</strong>
+        Place a WAF in front of this application (Nginx + ModSecurity, AWS WAF, or Haltdos).
+        Send traffic through the WAF and verify detection, logging, and blocking behavior.
+        This application performs no input validation on its own.
+      </p>
     </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span class="footer-left">WAF Test Lab — Intentionally Vulnerable Application</span>
+    <span class="footer-right">Do not deploy publicly</span>
+  </footer>
 
 </body>
-
 </html>

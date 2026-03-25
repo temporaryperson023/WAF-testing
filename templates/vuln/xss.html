@@ -1,97 +1,265 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>XSS Lab</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XSS — WAF Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <!-- NAV -->
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
-            <div class="nav-brand-dot"></div>
-            Vulnerability Lab
-        </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+      <div class="nav-brand-dot"></div>
+      Vulnerability Lab
+    </div>
+    <div class="nav-links">
+      <a href="/vuln/sqli"   class="nav-link">SQLi</a>
+      <a href="/vuln/xss"    class="nav-link active">XSS</a>
+      <a href="/vuln/upload" class="nav-link">Upload</a>
+      <a href="/vuln/cmdi"   class="nav-link">CMDi</a>
+      <a href="/vuln/admin"  class="nav-link">Admin</a>
+      <a href="/vuln/ssrf"   class="nav-link">SSRF</a>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR TRIGGER -->
+  <button class="sidebar-trigger" id="sidebarTrigger" aria-label="Open payloads">
+    <span class="sidebar-trigger-badge badge-trigger-orange">4</span>
+    <span class="sidebar-trigger-label">Payloads</span>
+    <span class="sidebar-trigger-icon">‹</span>
+  </button>
+
+  <!-- OVERLAY -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" aria-label="XSS payloads">
+    <div class="sidebar-head">
+      <div class="sidebar-head-left">
+        <span class="sidebar-head-label">Cross-Site Scripting</span>
+        <span class="sidebar-head-title">Attack Payloads</span>
+      </div>
+      <button class="sidebar-close" id="sidebarClose" aria-label="Close">✕</button>
     </div>
 
-    <div class="test-page">
+    <div class="sidebar-body">
 
-        <!-- LEFT -->
-        <div class="col">
+      <div class="payload-group">
+        <div class="payload-group-label">Script Injection</div>
 
-            <!-- SEARCH -->
-            <form method="GET" class="panel">
-                <div class="panel-header">Search</div>
-                <div class="panel-body">
-                    <input id="searchInput" class="input" name="q" placeholder="Search something...">
-                    <br><br>
-                    <button class="btn btn-primary">Search</button>
-                </div>
-            </form>
-
-            <!-- RESULT -->
-            <div class="panel">
-                <div class="panel-header">Reflected Output</div>
-                <div class="panel-body">
-                    <!-- ❌ INTENTIONALLY VULNERABLE -->
-                    {{ query | safe }}
-                </div>
-            </div>
-
-            <!-- URL -->
-            <div class="panel">
-                <div class="panel-header">URL</div>
-                <div class="panel-body">
-                    <code>?q={{ query }}</code>
-                </div>
-            </div>
-
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">Classic alert</span>
+            <span class="payload-effect">Confirms script execution in browser</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">&lt;script&gt;alert('XSS')&lt;/script&gt;</span>
+            <button class="btn-use" data-payload="<script>alert('XSS')</script>">Use</button>
+          </div>
         </div>
 
-        <!-- RIGHT -->
-        <div class="col">
-
-            <div class="panel">
-                <div class="panel-header">🔥 Payload Library</div>
-                <div class="panel-body">
-
-                    <div class="payload" onclick="runPayload(`<script>alert('XSS')</script>`)">
-                        &lt;script&gt;alert('XSS')&lt;/script&gt;
-                    </div>
-
-                    <div class="payload" onclick="runPayload(`<img src=x onerror=alert(1)>`)">
-                        &lt;img src=x onerror=alert(1)&gt;
-                    </div>
-
-                    <div class="payload" onclick="runPayload(`<svg onload=alert(1)>`)">
-                        &lt;svg onload=alert(1)&gt;
-                    </div>
-
-                    <div class="payload"
-                        onclick="runPayload('&lt;iframe src=&quot;javascript:alert(1)&quot;&gt;&lt;/iframe&gt;')">
-                        iframe javascript
-                    </div>
-
-                </div>
-            </div>
-
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">Image onerror</span>
+            <span class="payload-effect">Fires on broken image src — no script tag needed</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">&lt;img src=x onerror=alert(1)&gt;</span>
+            <button class="btn-use" data-payload="<img src=x onerror=alert(1)>">Use</button>
+          </div>
         </div>
+
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">SVG onload</span>
+            <span class="payload-effect">Inline SVG executes JS on load</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">&lt;svg onload=alert(document.domain)&gt;</span>
+            <button class="btn-use" data-payload="<svg onload=alert(document.domain)>">Use</button>
+          </div>
+        </div>
+
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">iFrame javascript</span>
+            <span class="payload-effect">Executes via iframe src attribute</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">&lt;iframe src="javascript:alert(1)"&gt;&lt;/iframe&gt;</span>
+            <button class="btn-use" data-payload='<iframe src="javascript:alert(1)"></iframe>'>Use</button>
+          </div>
+        </div>
+      </div>
 
     </div>
 
-    <script>
-        function runPayload(payload) {
-            const url = '?q=' + encodeURIComponent(payload);
-            window.location.href = url;
-        }
-    </script>
+    <div class="sidebar-foot">
+      <p class="sidebar-foot-note">
+        Clicking <strong>Use</strong> pastes the payload into the search field and navigates to the reflected URL.
+      </p>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <div class="page-header">
+      <a href="/vuln/" class="back-link">← Back to Dashboard</a>
+      <div class="header-meta">
+        <span class="tag tag-high">High</span>
+        <span class="tag tag-owasp">OWASP A03 — Injection</span>
+      </div>
+      <h1 class="page-title">Cross-Site Scripting (XSS)</h1>
+      <p class="page-desc">
+        User input is reflected directly into the HTML response using Jinja2's
+        <code>| safe</code> filter, bypassing all auto-escaping. Any HTML or JavaScript
+        submitted in the search field is rendered as live markup in the page.
+      </p>
+    </div>
+
+    <!-- LEFT -->
+    <div class="col-left">
+
+      <div class="panel">
+        <div class="panel-header">Search Form</div>
+        <div class="panel-body">
+          <form method="GET" class="form" id="searchForm">
+            <div class="field">
+              <label class="field-label" for="searchInput">Search Query</label>
+              <input class="field-input" type="text" id="searchInput" name="q"
+                placeholder="Enter search term or XSS payload"
+                value="{{ query | e }}" autocomplete="off" spellcheck="false" />
+            </div>
+            <button class="btn btn-primary" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="reflect-box">
+        <div class="reflect-box-header">
+          <span class="reflect-box-label">Reflected Output</span>
+          <span class="reflect-box-warning">Unescaped</span>
+        </div>
+        <!-- ❌ INTENTIONALLY VULNERABLE -->
+        <div class="reflect-output">{{ query | safe }}</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">URL</div>
+        <div class="panel-body">
+          <code style="font-family:var(--font-mono);font-size:0.82rem;color:var(--text-2);">?q={{ query }}</code>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>Why this is vulnerable —</strong> The template renders input as:<br><br>
+        <code>{{ '{{' }} query | safe {{ '}}' }}</code><br><br>
+        The <code>| safe</code> filter disables Jinja2's HTML auto-escaping. Raw
+        <code>&lt;script&gt;</code> tags, event handlers like <code>onerror=</code>,
+        and <code>javascript:</code> URIs are injected directly into the DOM.
+        A WAF should detect and block these patterns in the query string.
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-right">
+
+      <div class="info-panel orange">
+        <span class="info-panel-label">How it works</span>
+        <div class="info-panel-title">Reflected XSS via unsanitized output</div>
+        <div class="info-panel-desc">
+          Whatever you type into the search field is sent as a GET parameter
+          (<code>?q=...</code>) and reflected back into the HTML response without
+          any encoding. The browser interprets it as markup — not as text.
+        </div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-step">
+          <span class="flow-step-num">01</span>
+          <div>
+            <div class="flow-step-title">User submits search input</div>
+            <div class="flow-step-desc">Payload sent as <code>GET /vuln/xss?q=&lt;payload&gt;</code></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">02</span>
+          <div>
+            <div class="flow-step-title">Flask passes value to template</div>
+            <div class="flow-step-desc">No sanitization or encoding applied server-side</div>
+          </div>
+        </div>
+        <div class="flow-step vuln">
+          <span class="flow-step-num">03</span>
+          <div>
+            <div class="flow-step-title">Template renders with <code>| safe</code></div>
+            <div class="flow-step-desc">Raw HTML injected directly into the DOM</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">04</span>
+          <div>
+            <div class="flow-step-title">Browser executes the script</div>
+            <div class="flow-step-desc">Attacker controls any JS running in the victim's session</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <span class="footer-left">WAF Test Lab — XSS Module</span>
+    <span class="footer-right">For security testing only</span>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const trigger = document.getElementById('sidebarTrigger');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const closeBtn = document.getElementById('sidebarClose');
+
+      function openSidebar() {
+        sidebar.classList.add('open'); overlay.classList.add('visible');
+        trigger.classList.add('open'); document.body.style.overflow = 'hidden';
+      }
+      function closeSidebar() {
+        sidebar.classList.remove('open'); overlay.classList.remove('visible');
+        trigger.classList.remove('open'); document.body.style.overflow = '';
+      }
+
+      trigger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+      closeBtn.addEventListener('click', closeSidebar);
+      overlay.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+      // Use buttons — run payload via URL navigation
+      document.querySelectorAll('.btn-use[data-payload]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          markUsed(btn);
+          setTimeout(() => {
+            closeSidebar();
+            window.location.href = '?q=' + encodeURIComponent(btn.dataset.payload);
+          }, 300);
+        });
+      });
+
+      function markUsed(btn) {
+        btn.textContent = '✓'; btn.classList.add('used');
+        setTimeout(() => { btn.textContent = 'Use'; btn.classList.remove('used'); }, 1800);
+      }
+    });
+  </script>
 
 </body>
-
 </html>

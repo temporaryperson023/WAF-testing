@@ -1,89 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>SSRF Lab</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — WAF Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
-            <div class="nav-brand-dot"></div>
-            Vulnerability Lab
-        </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+      <div class="nav-brand-dot"></div>
+      Vulnerability Lab
+    </div>
+    <div class="nav-links">
+      <a href="/vuln/sqli"   class="nav-link">SQLi</a>
+      <a href="/vuln/xss"    class="nav-link">XSS</a>
+      <a href="/vuln/upload" class="nav-link">Upload</a>
+      <a href="/vuln/cmdi"   class="nav-link">CMDi</a>
+      <a href="/vuln/admin"  class="nav-link active">Admin</a>
+      <a href="/vuln/ssrf"   class="nav-link">SSRF</a>
+    </div>
+  </nav>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-full-col">
+
+    <!-- BREACH BANNER -->
+    <div class="breach-banner">
+      <div class="breach-banner-left">
+        <span class="breach-dot"></span>
+        <span class="breach-text">
+          <strong>Unauthorized access detected.</strong>
+          You reached this page with no credentials, session token, or role verification.
+          If your WAF is active, this page should have been blocked at the network layer.
+        </span>
+      </div>
+      <span class="breach-badge">No Auth Required</span>
     </div>
 
-    <div class="test-page">
-
-        <!-- LEFT -->
-        <div class="col">
-
-            <form method="POST" class="panel">
-                <div class="panel-header">Fetch URL</div>
-                <div class="panel-body">
-                    <input id="url" class="input" name="url" placeholder="Enter URL"><br><br>
-                    <button class="btn btn-primary">Fetch</button>
-                </div>
-            </form>
-
-            {% if url %}
-            <div class="panel">
-                <div class="panel-header">Requested URL</div>
-                <div class="panel-body">
-                    <code>{{ url }}</code>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if response %}
-            <div class="panel">
-                <div class="panel-header">Response</div>
-                <div class="panel-body">
-                    <pre style="font-size:12px;">{{ response }}</pre>
-                </div>
-            </div>
-            {% endif %}
-
-        </div>
-
-        <!-- RIGHT -->
-        <div class="col">
-
-            <div class="panel">
-                <div class="panel-header">🔥 Payloads</div>
-                <div class="panel-body">
-
-                    <div class="payload" onclick="attack('http://example.com')">
-                        Normal request
-                    </div>
-
-                    <div class="payload" onclick="attack('http://127.0.0.1:5600/')">
-                        Localhost access
-                    </div>
-
-                    <div class="payload" onclick="attack('http://127.0.0.1:5600/vuln/admin/panel')">
-                        Access admin internally
-                    </div>
-
-                    <div class="payload" onclick="attack('http://localhost:5600/vuln/sqli')">
-                        Internal SQLi page
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-
+    <!-- HEADER -->
+    <div class="page-header-row">
+      <div>
+        <a href="/vuln/admin" class="back-link">← Back to Access Control Module</a>
+        <h1 class="page-title">Admin Panel</h1>
+        <p class="page-desc">
+          Served from <code>/vuln/admin/panel</code> — no authentication, no session check, no role validation.
+        </p>
+      </div>
     </div>
 
-    <script>
-        function attack(payload) {
-            document.getElementById('url').value = payload;
-        }
-    </script>
+    <!-- USERS TABLE -->
+    <div>
+      <div class="section-label">User Records — including plaintext passwords</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">users</span>
+          <span class="table-badge badge-red">Sensitive</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Role</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{ user['id'] }}</td>
+              <td>{{ user['username'] }}</td>
+              <td class="td-pw">{{ user['password'] }}</td>
+              <td>
+                {% if user['role'] == 'admin' %}
+                <span class="td-admin">admin</span>
+                {% else %}
+                <span class="td-user">{{ user['role'] }}</span>
+                {% endif %}
+              </td>
+              <td>{{ user['email'] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <span class="footer-left">WAF Test Lab — Admin Panel (Unprotected)</span>
+    <span class="footer-right">For security testing only</span>
+  </footer>
 
 </body>
-
 </html>

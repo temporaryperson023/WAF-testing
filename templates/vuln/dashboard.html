@@ -1,82 +1,179 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Vulnerability Lab</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vulnerability Lab — WAF Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  
+  <style>
+        #backbtn {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 10px 15px;
+          background-color: #eee;
+          color: #333;
+          border-radius: 5px;
+          text-decoration: none;
+          font-weight: 500;
+          position: relative;
+          left: 1px;
+          top: 1px;
+        }
+  </style>
 </head>
 
 <body>
 
-    <!-- NAV -->
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/'" style="cursor:pointer;">
-            <div class="nav-brand-dot"></div>
-            WAF Test Lab
-        </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand" onclick="location.href='/'" style="cursor:pointer;">
+      <div class="nav-brand-dot"></div>
+      WAF Test Lab
+    </div>
+    <div class="nav-version">LAB 01</div>
+  </nav>
 
-        <div class="nav-version">LAB 01</div>
+  <!-- HOME -->
+  <div class="home-main">
+
+    <div class="home-hero">
+      <div class="home-label">
+        <span class="home-label-dot"></span>
+        Security Testing Target
+      </div>
+      <h1 class="home-title">Vulnerability Lab</h1>
+      <p class="home-desc">
+        An intentionally vulnerable application built as a WAF testing target.
+        Six isolated modules, each exposing a distinct OWASP Top 10 attack surface.
+      </p>
+      <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+    
+    <!-- GRID -->
+    <div class="lab-cards">
+
+      <a href="/vuln/sqli" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">01</span>
+          <span class="severity sev-critical">Critical</span>
+        </div>
+        <div class="lab-card-title">SQL Injection</div>
+        <div class="lab-card-desc">
+          Login form built with raw SQL string formatting — no parameterized queries.
+          Accepts payloads like <code>' OR 1=1 --</code> to bypass auth and extract the full users table.
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/vuln/sqli</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a href="/vuln/xss" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">02</span>
+          <span class="severity sev-high">High</span>
+        </div>
+        <div class="lab-card-title">Cross-Site Scripting</div>
+        <div class="lab-card-desc">
+          Search input reflected directly into the page using Jinja2's <code>| safe</code> filter.
+          Accepts <code>&lt;script&gt;</code> tags, event handlers, and SVG injection payloads.
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/vuln/xss</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a href="/vuln/upload" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">03</span>
+          <span class="severity sev-high">High</span>
+        </div>
+        <div class="lab-card-title">Unrestricted File Upload</div>
+        <div class="lab-card-desc">
+          File upload endpoint with no MIME type, extension, or filename validation.
+          Accepts <code>.php</code>, <code>.exe</code>, <code>.sh</code> and saves directly to the server filesystem.
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/vuln/upload</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a href="/vuln/cmdi" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">04</span>
+          <span class="severity sev-critical">Critical</span>
+        </div>
+        <div class="lab-card-title">Command Injection</div>
+        <div class="lab-card-desc">
+          Host input passed directly into a shell command via <code>subprocess</code>.
+          Shell metacharacters like <code>; id</code>, <code>&amp;&amp; cat /etc/passwd</code>, and <code>$()</code> execute freely.
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/vuln/cmdi</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a href="/vuln/admin" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">05</span>
+          <span class="severity sev-medium">Medium</span>
+        </div>
+        <div class="lab-card-title">Broken Access Control</div>
+        <div class="lab-card-desc">
+          Admin panel with zero authentication or authorization checks.
+          Any anonymous visitor gets full access to all user records including plaintext credentials.
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/vuln/admin</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a href="/vuln/ssrf" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">06</span>
+          <span class="severity sev-high">High</span>
+        </div>
+        <div class="lab-card-title">Server-Side Request Forgery</div>
+        <div class="lab-card-desc">
+          Any user-supplied URL is fetched server-side via <code>requests.get()</code>.
+          Probe internal services, cloud metadata endpoints, and private network ranges.
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/vuln/ssrf</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
+
     </div>
 
-    <!-- PAGE -->
-    <div class="home-main">
+  </div>
 
-        <div class="home-hero">
-            <h1 class="home-title">Vulnerability Lab</h1>
-            <p class="home-desc">
-                Test different attack vectors against the WAF
-            </p>
-        </div>
-
-        <!-- GRID -->
-        <div class="lab-cards">
-
-            <div class="lab-card" onclick="location.href='/vuln/sqli'">
-                <div class="lab-card-title">🗄 SQL Injection</div>
-                <div class="lab-card-desc">Bypass login using SQL payloads</div>
-            </div>
-
-            <div class="lab-card" onclick="location.href='/vuln/xss'">
-                <div class="lab-card-title">💬 XSS</div>
-                <div class="lab-card-desc">Inject JavaScript into page</div>
-            </div>
-
-            <div class="lab-card" onclick="location.href='/vuln/upload'">
-                <div class="lab-card-title">📁 File Upload</div>
-                <div class="lab-card-desc">Upload malicious files</div>
-            </div>
-
-            <div class="lab-card" onclick="location.href='/vuln/cmdi'">
-                <div class="lab-card-title">⌨ Command Injection</div>
-                <div class="lab-card-desc">Execute system commands</div>
-            </div>
-
-            <div class="lab-card" onclick="location.href='/vuln/admin'">
-                <div class="lab-card-title">🔓 Broken Access</div>
-                <div class="lab-card-desc">Access admin panel without auth</div>
-            </div>
-
-            <div class="lab-card" onclick="location.href='/vuln/ssrf'">
-                <div class="lab-card-title">🌐 SSRF</div>
-                <div class="lab-card-desc">Make server fetch internal URLs</div>
-            </div>
-
-        </div>
-
+  <!-- INFO BAR -->
+  <section class="info-section">
+    <div class="info-bar">
+      <div class="info-bar-marker"></div>
+      <p class="info-bar-text">
+        <strong>WAF Testing Flow —</strong>
+        Place a WAF in front of this app (Nginx + ModSecurity, AWS WAF, Cloudflare, HAProxy + CRS).
+        Send attack payloads through it and verify detection, logging, and blocking behavior.
+        This application performs no input validation — that responsibility belongs entirely to the WAF.
+      </p>
     </div>
+  </section>
 
-    <!-- FOOTER -->
-    <div class="footer">
-        <div>Vulnerability Lab</div>
-        <div>For testing only</div>
-    </div>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span class="footer-left">WAF Test Lab — Vulnerability Lab</span>
+    <span class="footer-right">For security testing only — do not deploy publicly</span>
+  </footer>
 
 </body>
-
 </html>

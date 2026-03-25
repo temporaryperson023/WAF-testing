@@ -1,39 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Admin Access</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broken Access Control — WAF Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
-            <div class="nav-brand-dot"></div>
-            Vulnerability Lab
-        </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+      <div class="nav-brand-dot"></div>
+      Vulnerability Lab
+    </div>
+    <div class="nav-links">
+      <a href="/vuln/sqli"   class="nav-link">SQLi</a>
+      <a href="/vuln/xss"    class="nav-link">XSS</a>
+      <a href="/vuln/upload" class="nav-link">Upload</a>
+      <a href="/vuln/cmdi"   class="nav-link">CMDi</a>
+      <a href="/vuln/admin"  class="nav-link active">Admin</a>
+      <a href="/vuln/ssrf"   class="nav-link">SSRF</a>
+    </div>
+  </nav>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <div class="page-header">
+      <a href="/vuln/" class="back-link">← Back to Dashboard</a>
+      <div class="header-meta">
+        <span class="tag tag-medium">Medium</span>
+        <span class="tag tag-owasp">OWASP A01 — Broken Access Control</span>
+      </div>
+      <h1 class="page-title">Broken Access Control</h1>
+      <p class="page-desc">
+        The admin panel at <code>/vuln/admin/panel</code> has no authentication,
+        session validation, or role check. Any anonymous user who knows the URL
+        gets full access to all user records and credentials.
+        The WAF should detect and block direct access to this sensitive route.
+      </p>
     </div>
 
-    <div class="home-main">
+    <!-- LEFT -->
+    <div class="col-left">
 
-        <div class="home-hero">
-            <h1 class="home-title">Admin Area</h1>
-            <p class="home-desc">This page should be protected</p>
+      <div class="trigger-card">
+        <div class="trigger-card-header">
+          <span class="trigger-card-title">Attack Simulation</span>
         </div>
+        <div class="trigger-card-body">
 
-        <div class="panel" style="max-width:500px;">
-            <div class="panel-body">
-                <p>⚠️ No authentication required</p>
-                <br>
-                <button class="btn btn-primary" onclick="location.href='/vuln/admin/panel'">
-                    Go to Admin Panel
-                </button>
-            </div>
+          <div class="lock-icon">🔓</div>
+
+          <div class="trigger-title">Access the Unprotected Admin Panel</div>
+
+          <div class="trigger-desc">
+            Clicking the button below sends a direct request to
+            <code style="font-family:var(--font-mono);font-size:0.82em;">/vuln/admin/panel</code>
+            with no credentials or session token.
+            A properly configured WAF should intercept this request and return a 403.
+          </div>
+
+          <div class="trigger-url">
+            GET <span>/vuln/admin/panel</span> — no auth required
+          </div>
+
+          <a href="/vuln/admin/panel" class="btn-action">
+            <span>→</span>
+            Access Admin Panel
+          </a>
+
+          <div class="trigger-warning">
+            If your WAF is active, this request will be blocked with HTTP 403.<br>
+            If it loads — your WAF rule is missing or misconfigured.
+          </div>
+
         </div>
+      </div>
+
+      <div class="note-box">
+        <strong>Why this is vulnerable —</strong> The route is defined as:<br><br>
+        <code>@vuln_bp.route('/admin/panel')</code><br>
+        <code>def admin_panel():</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;# no session check, no auth, no role validation</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;return render_template("vuln/admin_panel.html", ...)</code><br><br>
+        A WAF should block any unauthenticated request to <code>/vuln/admin/*</code>
+        paths using path-based access rules or IP allowlisting.
+      </div>
 
     </div>
+
+    <!-- RIGHT -->
+    <div class="col-right">
+
+      <div class="info-panel amber">
+        <span class="info-panel-label">Attack Surface</span>
+        <div class="info-panel-title">Sensitive route with no access enforcement</div>
+        <div class="info-panel-desc">
+          Broken Access Control occurs when an application exposes privileged
+          functionality without verifying the requester's identity or role.
+          The path <code>/vuln/admin/panel</code> returns full database contents
+          to any visitor — no login, no token, no check of any kind.
+        </div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-step">
+          <span class="flow-step-num">01</span>
+          <div>
+            <div class="flow-step-title">Anonymous user requests the URL</div>
+            <div class="flow-step-desc"><code>GET /vuln/admin/panel</code> — no session cookie, no token</div>
+          </div>
+        </div>
+        <div class="flow-step blocked">
+          <span class="flow-step-num">02</span>
+          <div>
+            <div class="flow-step-title">WAF intercepts the request</div>
+            <div class="flow-step-desc">Path-based rule matches <code>/admin/*</code> — returns 403 Forbidden</div>
+          </div>
+        </div>
+        <div class="flow-step vuln">
+          <span class="flow-step-num">03</span>
+          <div>
+            <div class="flow-step-title">Without WAF — Flask serves the panel</div>
+            <div class="flow-step-desc">No auth check in the route — full data exposed immediately</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">04</span>
+          <div>
+            <div class="flow-step-title">All sensitive data returned</div>
+            <div class="flow-step-desc">Usernames, plaintext passwords, roles, and session tokens</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="waf-box">
+        <div class="waf-box-header">
+          <span class="waf-box-label">Recommended WAF Rule</span>
+          <span class="waf-box-badge">ModSecurity</span>
+        </div>
+        <div class="waf-box-code"><span class="cmt"># Block all unauthenticated access to /admin/* paths</span>
+<span class="kw">SecRule</span> <span class="val">REQUEST_URI</span> <span class="val">"@beginsWith /admin/"</span> \
+  <span class="val">"id:8001,phase:1,block,\
+  msg:'Unauthorized admin path access',\
+  severity:'CRITICAL'"</span></div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <span class="footer-left">WAF Test Lab — Broken Access Control Module</span>
+    <span class="footer-right">For security testing only</span>
+  </footer>
 
 </body>
-
 </html>

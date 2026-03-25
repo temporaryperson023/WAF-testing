@@ -1,89 +1,293 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Command Injection</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Injection — WAF Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
-            <div class="nav-brand-dot"></div>
-            Vulnerability Lab
-        </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+      <div class="nav-brand-dot"></div>
+      Vulnerability Lab
+    </div>
+    <div class="nav-links">
+      <a href="/vuln/sqli"   class="nav-link">SQLi</a>
+      <a href="/vuln/xss"    class="nav-link">XSS</a>
+      <a href="/vuln/upload" class="nav-link">Upload</a>
+      <a href="/vuln/cmdi"   class="nav-link active">CMDi</a>
+      <a href="/vuln/admin"  class="nav-link">Admin</a>
+      <a href="/vuln/ssrf"   class="nav-link">SSRF</a>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR TRIGGER -->
+  <button class="sidebar-trigger" id="sidebarTrigger" aria-label="Open payloads">
+    <span class="sidebar-trigger-badge badge-trigger-red">4</span>
+    <span class="sidebar-trigger-label">Payloads</span>
+    <span class="sidebar-trigger-icon">‹</span>
+  </button>
+
+  <!-- OVERLAY -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" aria-label="Command injection payloads">
+    <div class="sidebar-head">
+      <div class="sidebar-head-left">
+        <span class="sidebar-head-label">Command Injection</span>
+        <span class="sidebar-head-title">Attack Payloads</span>
+      </div>
+      <button class="sidebar-close" id="sidebarClose" aria-label="Close">✕</button>
     </div>
 
-    <div class="test-page">
+    <div class="sidebar-body">
 
-        <!-- LEFT -->
-        <div class="col">
+      <div class="payload-group">
+        <div class="payload-group-label">Command Chaining</div>
 
-            <form method="POST" class="panel">
-                <div class="panel-header">Ping Tool</div>
-                <div class="panel-body">
-                    <input id="ip" class="input" name="ip" placeholder="Enter IP or domain"><br><br>
-                    <button class="btn btn-primary">Run</button>
-                </div>
-            </form>
-
-            {% if command_shown %}
-            <div class="panel">
-                <div class="panel-header">Executed Command</div>
-                <div class="panel-body">
-                    <code>{{ command_shown }}</code>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if output %}
-            <div class="panel">
-                <div class="panel-header">Output</div>
-                <div class="panel-body">
-                    <pre style="font-size:12px;">{{ output }}</pre>
-                </div>
-            </div>
-            {% endif %}
-
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">whoami</span>
+            <span class="payload-effect">Reveals the server process user</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">8.8.8.8; whoami</span>
+            <button class="btn-use" data-payload="8.8.8.8; whoami">Use</button>
+          </div>
         </div>
 
-        <!-- RIGHT -->
-        <div class="col">
-
-            <div class="panel">
-                <div class="panel-header">🔥 Payloads</div>
-                <div class="panel-body">
-
-                    <div class="payload" onclick="attack(`8.8.8.8; whoami`)">
-                        whoami
-                    </div>
-
-                    <div class="payload" onclick="attack(`8.8.8.8; ls`)">
-                        list files
-                    </div>
-
-                    <div class="payload" onclick="attack(`8.8.8.8 && uname -a`)">
-                        system info
-                    </div>
-
-                    <div class="payload" onclick="attack(`8.8.8.8; cat /etc/passwd`)">
-                        read passwd
-                    </div>
-
-                </div>
-            </div>
-
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">List files</span>
+            <span class="payload-effect">Shows current directory contents</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">8.8.8.8; ls</span>
+            <button class="btn-use" data-payload="8.8.8.8; ls">Use</button>
+          </div>
         </div>
+
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">System info</span>
+            <span class="payload-effect">Dumps kernel and OS details</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">8.8.8.8 &amp;&amp; uname -a</span>
+            <button class="btn-use" data-payload="8.8.8.8 && uname -a">Use</button>
+          </div>
+        </div>
+
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">Read passwd</span>
+            <span class="payload-effect">Dumps /etc/passwd — system user list</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">8.8.8.8; cat /etc/passwd</span>
+            <button class="btn-use" data-payload="8.8.8.8; cat /etc/passwd">Use</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="payload-group">
+        <div class="payload-group-label">Valid (Non-Malicious) Inputs</div>
+
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">Localhost ping</span>
+            <span class="payload-effect">Normal ping — no injection</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code safe">127.0.0.1</span>
+            <button class="btn-use" data-payload="127.0.0.1">Use</button>
+          </div>
+        </div>
+
+      </div>
 
     </div>
 
-    <script>
-        function attack(payload) {
-            document.getElementById('ip').value = payload;
-        }
-    </script>
+    <div class="sidebar-foot">
+      <p class="sidebar-foot-note">
+        Clicking <strong>Use</strong> pastes the payload into the IP field.
+        Submit to execute — output appears in the terminal below.
+      </p>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <div class="page-header">
+      <a href="/vuln/" class="back-link">← Back to Dashboard</a>
+      <div class="header-meta">
+        <span class="tag tag-critical">Critical</span>
+        <span class="tag tag-owasp">OWASP A03 — Injection</span>
+      </div>
+      <h1 class="page-title">Command Injection</h1>
+      <p class="page-desc">
+        User-supplied input is passed directly into a shell command via
+        <code>subprocess</code> with no sanitization or shell metacharacter escaping.
+        Any chained command executes with the same privileges as the server process.
+      </p>
+    </div>
+
+    <!-- LEFT -->
+    <div class="col-left">
+
+      <div class="panel">
+        <div class="panel-header">Ping Tool</div>
+        <div class="panel-body">
+          <form method="POST" action="/vuln/cmdi" id="cmdForm">
+            <div class="search-wrap">
+              <span class="search-prefix">ping -c 2</span>
+              <input class="search-input" type="text" id="ip" name="ip"
+                placeholder="e.g. 127.0.0.1"
+                value="{{ command_shown | replace('ping -c 2 ', '') if command_shown else '' }}"
+                autocomplete="off" spellcheck="false" />
+              <button class="btn-run" type="submit">Run</button>
+            </div>
+            <div class="search-hint">
+              Enter a host or IP — or open Payloads to inject a chained command
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- TERMINAL -->
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-bar-left">
+            <span class="terminal-dot r"></span>
+            <span class="terminal-dot y"></span>
+            <span class="terminal-dot g"></span>
+            <span class="terminal-label">shell output</span>
+          </div>
+          {% if command_shown %}
+          <span class="terminal-cmd-shown">$ {{ command_shown }}</span>
+          {% endif %}
+        </div>
+        <div class="terminal-body">
+          {% if output %}
+          <div class="terminal-output">{{ output }}</div>
+          {% else %}
+          <div class="terminal-empty">
+            No command run yet<span class="terminal-cursor"></span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>Why this is vulnerable —</strong> The command is built as:<br><br>
+        <code>subprocess.check_output(f"ping -c 2 {ip}", shell=True)</code><br><br>
+        Shell metacharacters <code>;</code>, <code>|</code>, <code>&amp;&amp;</code>,
+        backticks, and <code>$()</code> are not filtered.
+        A WAF should detect these characters in request parameters before the
+        request reaches the server.
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-right">
+
+      <div class="info-panel red">
+        <span class="info-panel-label">Attack Surface</span>
+        <div class="info-panel-title">Shell command built from raw user input</div>
+        <div class="info-panel-desc">
+          The server runs <code>ping -c 2 {input}</code> directly in a shell.
+          Appending metacharacters breaks out of the ping context and
+          executes arbitrary commands with server-level privileges.
+        </div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-step">
+          <span class="flow-step-num">01</span>
+          <div>
+            <div class="flow-step-title">User submits a host value</div>
+            <div class="flow-step-desc">Sent as <code>POST /vuln/cmdi</code> with <code>ip=&lt;value&gt;</code></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">02</span>
+          <div>
+            <div class="flow-step-title">Flask passes it to subprocess</div>
+            <div class="flow-step-desc">No validation, no metacharacter stripping</div>
+          </div>
+        </div>
+        <div class="flow-step vuln">
+          <span class="flow-step-num">03</span>
+          <div>
+            <div class="flow-step-title">Shell interprets the full string</div>
+            <div class="flow-step-desc"><code>shell=True</code> passes the raw string to <code>/bin/sh</code></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step-num">04</span>
+          <div>
+            <div class="flow-step-title">Injected command executes</div>
+            <div class="flow-step-desc">Output returned to the browser in plaintext</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <span class="footer-left">WAF Test Lab — Command Injection Module</span>
+    <span class="footer-right">For security testing only</span>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const trigger = document.getElementById('sidebarTrigger');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const closeBtn = document.getElementById('sidebarClose');
+
+      function openSidebar() {
+        sidebar.classList.add('open'); overlay.classList.add('visible');
+        trigger.classList.add('open'); document.body.style.overflow = 'hidden';
+      }
+      function closeSidebar() {
+        sidebar.classList.remove('open'); overlay.classList.remove('visible');
+        trigger.classList.remove('open'); document.body.style.overflow = '';
+      }
+
+      trigger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+      closeBtn.addEventListener('click', closeSidebar);
+      overlay.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+      // Use buttons — paste into ip field
+      document.querySelectorAll('.btn-use[data-payload]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const h = document.getElementById('ip');
+          if (h) h.value = btn.dataset.payload;
+          markUsed(btn);
+          setTimeout(closeSidebar, 400);
+        });
+      });
+
+      function markUsed(btn) {
+        btn.textContent = '✓'; btn.classList.add('used');
+        setTimeout(() => { btn.textContent = 'Use'; btn.classList.remove('used'); }, 1800);
+      }
+    });
+  </script>
 
 </body>
-
 </html>

