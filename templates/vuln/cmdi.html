@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Command Injection</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Vulnerability Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <form method="POST" class="panel">
+                <div class="panel-header">Ping Tool</div>
+                <div class="panel-body">
+                    <input id="ip" class="input" name="ip" placeholder="Enter IP or domain"><br><br>
+                    <button class="btn btn-primary">Run</button>
+                </div>
+            </form>
+
+            {% if command_shown %}
+            <div class="panel">
+                <div class="panel-header">Executed Command</div>
+                <div class="panel-body">
+                    <code>{{ command_shown }}</code>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if output %}
+            <div class="panel">
+                <div class="panel-header">Output</div>
+                <div class="panel-body">
+                    <pre style="font-size:12px;">{{ output }}</pre>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">🔥 Payloads</div>
+                <div class="panel-body">
+
+                    <div class="payload" onclick="attack(`8.8.8.8; whoami`)">
+                        whoami
+                    </div>
+
+                    <div class="payload" onclick="attack(`8.8.8.8; ls`)">
+                        list files
+                    </div>
+
+                    <div class="payload" onclick="attack(`8.8.8.8 && uname -a`)">
+                        system info
+                    </div>
+
+                    <div class="payload" onclick="attack(`8.8.8.8; cat /etc/passwd`)">
+                        read passwd
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function attack(payload) {
+            document.getElementById('ip').value = payload;
+        }
+    </script>
+
+</body>
+
+</html>

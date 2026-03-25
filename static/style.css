@@ -1,0 +1,232 @@
+/* ===============================
+   RESET + BASE
+================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 15px;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ===============================
+   VARIABLES
+================================ */
+:root {
+    --font-sans: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface-2: #f7f6f4;
+    --border: #e8e6e1;
+
+    --text: #18181b;
+    --text-2: #52525b;
+    --text-3: #a1a1aa;
+
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+
+    --green: #15803d;
+    --green-bg: #f0fdf4;
+
+    --radius: 10px;
+}
+
+/* ===============================
+   NAVBAR
+================================ */
+.nav {
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.nav-brand-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--red);
+}
+
+.nav-version {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--surface-2);
+    padding: 4px 8px;
+    border-radius: 999px;
+}
+
+/* ===============================
+   HERO
+================================ */
+.home-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.home-hero {
+    text-align: center;
+    padding: 5rem 2rem;
+    max-width: 900px;
+}
+
+.home-title {
+    font-size: 3rem;
+    font-weight: 600;
+}
+
+.home-desc {
+    margin-top: 1rem;
+    color: var(--text-2);
+}
+
+/* ===============================
+   LAB CARDS
+================================ */
+.lab-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 900px;
+    width: 100%;
+}
+
+.lab-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.lab-card:hover {
+    transform: translateY(-3px);
+}
+
+.lab-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.lab-card-desc {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    color: var(--text-2);
+}
+
+/* ===============================
+   BUTTONS
+================================ */
+.btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    border: 1px solid var(--border);
+}
+
+.btn-primary {
+    background: var(--text);
+    color: white;
+}
+
+/* ===============================
+   PANEL
+================================ */
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.panel-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+}
+
+.panel-body {
+    padding: 1rem;
+}
+
+/* ===============================
+   INPUTS
+================================ */
+.input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+}
+
+/* ===============================
+   FOOTER
+================================ */
+.footer {
+    margin-top: 3rem;
+    padding: 1rem 2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+}
+
+
+/* ===============================
+   TEST PAGE LAYOUT
+================================ */
+.test-page {
+    max-width: 1100px;
+    margin: 2rem auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* PAYLOAD ITEM */
+.payload {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.payload:hover {
+    background: var(--surface-2);
+}

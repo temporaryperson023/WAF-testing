@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WAF Test Lab</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <div class="nav">
+        <div class="nav-brand">
+            <div class="nav-brand-dot"></div>
+            WAF Test Lab
+        </div>
+
+        <div class="nav-version">v1.0 · 5600</div>
+    </div>
+
+    <!-- HERO -->
+    <div class="home-main">
+
+        <div class="home-hero">
+            <h1 class="home-title">WAF Test Lab</h1>
+            <p class="home-desc">
+                A testing environment for Haltdos WAF
+            </p>
+        </div>
+
+        <!-- LAB CARDS -->
+        <div class="lab-cards">
+
+            <!-- LAB 1 -->
+            <div class="lab-card" onclick="location.href='/vuln/'">
+                <div class="lab-card-title">🛡 Vulnerability Lab</div>
+                <div class="lab-card-desc">
+                    Test SQLi, XSS, SSRF and more
+                </div>
+            </div>
+
+            <!-- LAB 2 -->
+            <div class="lab-card" onclick="location.href='/rules/'">
+                <div class="lab-card-title">⚙ Rules Test Lab</div>
+                <div class="lab-card-desc">
+                    Verify WAF rules behavior
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div>WAF Test Lab</div>
+        <div>Do not deploy publicly</div>
+    </div>
+
+</body>
+
+</html>

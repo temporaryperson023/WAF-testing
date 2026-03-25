@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>File Upload</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Vulnerability Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <!-- UPLOAD FORM -->
+            <form method="POST" enctype="multipart/form-data" class="panel">
+                <div class="panel-header">Upload File</div>
+                <div class="panel-body">
+                    <input type="file" name="file"><br><br>
+                    <button class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+
+            <!-- RESULT -->
+            {% if message %}
+            <div class="panel">
+                <div class="panel-header">Result</div>
+                <div class="panel-body">
+                    <p>{{ message }}</p>
+                    <p><b>File:</b> {{ uploaded_file }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">🔥 Test Files</div>
+                <div class="panel-body">
+
+                    <div class="payload">
+                        test.php
+                    </div>
+
+                    <div class="payload">
+                        shell.jsp
+                    </div>
+
+                    <div class="payload">
+                        image.jpg (with script)
+                    </div>
+
+                    <div class="payload">
+                        malware.exe
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">⚠️ Note</div>
+                <div class="panel-body">
+                    <p>No file validation is applied.</p>
+                    <p>Try uploading any file type.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

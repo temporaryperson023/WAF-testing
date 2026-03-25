@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Variable Rules</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Rules Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">Send Request</div>
+                <div class="panel-body">
+
+                    <input id="user" class="input" placeholder="user"><br><br>
+                    <input id="role" class="input" placeholder="role"><br><br>
+
+                    <button class="btn btn-primary" onclick="sendRequest()">
+                        Send
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">Response</div>
+                <div class="panel-body">
+                    <pre id="resultBox">No request yet</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">🔥 Payloads</div>
+                <div class="panel-body">
+
+                    <div class="payload" onclick="fill('kartik','user')">
+                        Normal user
+                    </div>
+
+                    <div class="payload" onclick="fill('guest','guest')">
+                        Guest access
+                    </div>
+
+                    <div class="payload" onclick="fill('test','admin')">
+                        Try admin role
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">⚙️ WAF Config Guide</div>
+                <div class="panel-body">
+
+                    <p><b>Rule Type:</b> Variable Rule</p>
+
+                    <br>
+
+                    <p><b>Try:</b></p>
+                    <ul>
+                        <li>Modify user → admin</li>
+                        <li>Modify role → admin</li>
+                    </ul>
+
+                    <br>
+
+                    <p><b>Expected:</b></p>
+                    <ul>
+                        <li>Without WAF → Same values</li>
+                        <li>With WAF → Modified values</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function fill(u, r) {
+            document.getElementById('user').value = u;
+            document.getElementById('role').value = r;
+        }
+
+        function sendRequest() {
+            const user = document.getElementById('user').value;
+            const role = document.getElementById('role').value;
+
+            const url = `/rules/variable/test?user=${encodeURIComponent(user)}&role=${encodeURIComponent(role)}`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('resultBox').innerText =
+                        JSON.stringify(data, null, 2);
+                });
+        }
+    </script>
+
+</body>
+
+</html>

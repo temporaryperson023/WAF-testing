@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Rules Lab</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            WAF Test Lab
+        </div>
+
+        <div class="nav-version">LAB 02</div>
+    </div>
+
+    <div class="home-main">
+
+        <div class="home-hero">
+            <h1 class="home-title">Rules Test Lab</h1>
+            <p class="home-desc">
+                Verify WAF rule behavior and transformations
+            </p>
+        </div>
+
+        <div class="lab-cards">
+
+            <div class="lab-card" onclick="location.href='/rules/error'">
+                <div class="lab-card-title">❌ Error Rules</div>
+                <div class="lab-card-desc">Modify error responses</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/rules/header'">
+                <div class="lab-card-title">📦 Header Rules</div>
+                <div class="lab-card-desc">Add/modify headers</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/rules/redirect'">
+                <div class="lab-card-title">🔀 Redirect Rules</div>
+                <div class="lab-card-desc">Test redirections</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/rules/variable'">
+                <div class="lab-card-title">🔤 Variable Rules</div>
+                <div class="lab-card-desc">Modify variables</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/rules/transform'">
+                <div class="lab-card-title">🔁 Transform Rules</div>
+                <div class="lab-card-desc">Rewrite responses</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/rules/forwarder'">
+                <div class="lab-card-title">📡 Forwarder Rules</div>
+                <div class="lab-card-desc">Forward requests</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/rules/capture'">
+                <div class="lab-card-title">📸 Capture Rules</div>
+                <div class="lab-card-desc">Capture request data</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/rules/upstream'">
+                <div class="lab-card-title">🌐 Upstream Rules</div>
+                <div class="lab-card-desc">Modify backend routing</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <div>Rules Lab</div>
+        <div>WAF Validation Mode</div>
+    </div>
+
+</body>
+
+</html>

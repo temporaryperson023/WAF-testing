@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Admin Access</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Vulnerability Lab
+        </div>
+    </div>
+
+    <div class="home-main">
+
+        <div class="home-hero">
+            <h1 class="home-title">Admin Area</h1>
+            <p class="home-desc">This page should be protected</p>
+        </div>
+
+        <div class="panel" style="max-width:500px;">
+            <div class="panel-body">
+                <p>⚠️ No authentication required</p>
+                <br>
+                <button class="btn btn-primary" onclick="location.href='/vuln/admin/panel'">
+                    Go to Admin Panel
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

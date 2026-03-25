@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Header Rules</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Rules Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">Trigger Request</div>
+                <div class="panel-body">
+
+                    <button class="btn btn-primary" onclick="hitEndpoint()">
+                        Send Request
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">Response</div>
+                <div class="panel-body">
+                    <pre id="responseBox">No request yet</pre>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">📤 Request Headers</div>
+                <div class="panel-body">
+                    <pre id="requestHeaders">No data</pre>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">📥 Response Headers</div>
+                <div class="panel-body">
+                    <pre id="responseHeaders">No data</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">⚙️ WAF Config Guide</div>
+                <div class="panel-body">
+
+                    <p><b>Rule Type:</b> Header Rule</p>
+                    <p><b>Action:</b> Add Header</p>
+
+                    <br>
+
+                    <p><b>Try Adding:</b></p>
+                    <ul>
+                        <li>X-WAF: Active</li>
+                        <li>X-Security: Enabled</li>
+                    </ul>
+
+                    <br>
+
+                    <p><b>Expected:</b></p>
+                    <ul>
+                        <li>Without WAF → No extra headers</li>
+                        <li>With WAF → Headers visible</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function hitEndpoint() {
+            fetch('/rules/header/test')
+                .then(res => {
+
+                    // RESPONSE HEADERS
+                    let resHeaders = "";
+                    res.headers.forEach((value, key) => {
+                        resHeaders += key + ": " + value + "\n";
+                    });
+
+                    document.getElementById('responseHeaders').innerText = resHeaders;
+
+                    return res.json();
+                })
+                .then(data => {
+
+                    // RESPONSE BODY
+                    document.getElementById('responseBox').innerText =
+                        JSON.stringify(data, null, 2);
+
+                    // REQUEST HEADERS
+                    let reqHeaders = "";
+                    for (let key in data.request_headers) {
+                        reqHeaders += key + ": " + data.request_headers[key] + "\n";
+                    }
+
+                    document.getElementById('requestHeaders').innerText = reqHeaders;
+                });
+        }
+    </script>
+
+</body>
+
+</html>

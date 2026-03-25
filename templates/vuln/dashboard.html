@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Vulnerability Lab</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            WAF Test Lab
+        </div>
+
+        <div class="nav-version">LAB 01</div>
+    </div>
+
+    <!-- PAGE -->
+    <div class="home-main">
+
+        <div class="home-hero">
+            <h1 class="home-title">Vulnerability Lab</h1>
+            <p class="home-desc">
+                Test different attack vectors against the WAF
+            </p>
+        </div>
+
+        <!-- GRID -->
+        <div class="lab-cards">
+
+            <div class="lab-card" onclick="location.href='/vuln/sqli'">
+                <div class="lab-card-title">🗄 SQL Injection</div>
+                <div class="lab-card-desc">Bypass login using SQL payloads</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/vuln/xss'">
+                <div class="lab-card-title">💬 XSS</div>
+                <div class="lab-card-desc">Inject JavaScript into page</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/vuln/upload'">
+                <div class="lab-card-title">📁 File Upload</div>
+                <div class="lab-card-desc">Upload malicious files</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/vuln/cmdi'">
+                <div class="lab-card-title">⌨ Command Injection</div>
+                <div class="lab-card-desc">Execute system commands</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/vuln/admin'">
+                <div class="lab-card-title">🔓 Broken Access</div>
+                <div class="lab-card-desc">Access admin panel without auth</div>
+            </div>
+
+            <div class="lab-card" onclick="location.href='/vuln/ssrf'">
+                <div class="lab-card-title">🌐 SSRF</div>
+                <div class="lab-card-desc">Make server fetch internal URLs</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div>Vulnerability Lab</div>
+        <div>For testing only</div>
+    </div>
+
+</body>
+
+</html>

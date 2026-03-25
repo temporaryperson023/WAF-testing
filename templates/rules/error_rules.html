@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Error Rules</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Rules Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">Trigger Request</div>
+                <div class="panel-body">
+
+                    <p>This endpoint returns a 404 JSON error.</p>
+                    <br>
+
+                    <button class="btn btn-primary" onclick="hitEndpoint()">
+                        Send Request
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">Response</div>
+                <div class="panel-body">
+                    <pre id="responseBox">No request sent</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">⚙️ WAF Config Guide</div>
+                <div class="panel-body">
+
+                    <p><b>Rule Type:</b> Error Rule</p>
+                    <p><b>Status Code:</b> 404</p>
+                    <p><b>Action:</b> Replace Response</p>
+
+                    <br>
+
+                    <p><b>Expected Behavior:</b></p>
+                    <ul>
+                        <li>Without WAF → JSON</li>
+                        <li>With WAF → Custom HTML page</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function hitEndpoint() {
+            fetch('/rules/error/test')
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('responseBox').innerText = data;
+                });
+        }
+    </script>
+
+</body>
+
+</html>

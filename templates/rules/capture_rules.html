@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Capture Rules</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Rules Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">Send Request</div>
+                <div class="panel-body">
+
+                    <input id="user" class="input" placeholder="user"><br><br>
+
+                    <button class="btn btn-primary" onclick="sendRequest()">
+                        Send
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">Response</div>
+                <div class="panel-body">
+                    <pre id="resultBox">No request yet</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">⚙️ WAF Config Guide</div>
+                <div class="panel-body">
+
+                    <p><b>Rule Type:</b> Capture Rule</p>
+
+                    <br>
+
+                    <p><b>Try capturing:</b></p>
+                    <ul>
+                        <li>Query param: user</li>
+                        <li>Header: User-Agent</li>
+                    </ul>
+
+                    <br>
+
+                    <p><b>Expected:</b></p>
+                    <ul>
+                        <li>Without WAF → Only response</li>
+                        <li>With WAF → Data logged in WAF</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function sendRequest() {
+            const user = document.getElementById('user').value;
+
+            const url = `/rules/capture/test?user=${encodeURIComponent(user)}`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('resultBox').innerText =
+                        JSON.stringify(data, null, 2);
+                });
+        }
+    </script>
+
+</body>
+
+</html>

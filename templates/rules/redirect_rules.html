@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Redirect Rules</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Rules Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">Trigger Request</div>
+                <div class="panel-body">
+
+                    <button class="btn btn-primary" onclick="hitEndpoint()">
+                        Send Request
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">Result</div>
+                <div class="panel-body">
+                    <pre id="resultBox">No request yet</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">⚙️ WAF Config Guide</div>
+                <div class="panel-body">
+
+                    <p><b>Rule Type:</b> Redirect Rule</p>
+
+                    <br>
+
+                    <p><b>Try:</b></p>
+                    <ul>
+                        <li>Redirect to /rules/redirect/target</li>
+                        <li>Status: 302</li>
+                    </ul>
+
+                    <br>
+
+                    <p><b>Expected:</b></p>
+                    <ul>
+                        <li>Without WAF → JSON response</li>
+                        <li>With WAF → Page redirect</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function hitEndpoint() {
+            fetch('/rules/redirect/test', {
+                redirect: "manual"  // important
+            })
+                .then(res => {
+
+                    if (res.status >= 300 && res.status < 400) {
+                        document.getElementById('resultBox').innerText =
+                            "Redirect detected!\nStatus: " + res.status +
+                            "\nLocation: " + res.headers.get("Location");
+                    } else {
+                        return res.text().then(data => {
+                            document.getElementById('resultBox').innerText = data;
+                        });
+                    }
+
+                })
+                .catch(err => {
+                    document.getElementById('resultBox').innerText = err;
+                });
+        }
+    </script>
+
+</body>
+
+</html>

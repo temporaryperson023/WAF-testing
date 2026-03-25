@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SSRF Lab</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Vulnerability Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <form method="POST" class="panel">
+                <div class="panel-header">Fetch URL</div>
+                <div class="panel-body">
+                    <input id="url" class="input" name="url" placeholder="Enter URL"><br><br>
+                    <button class="btn btn-primary">Fetch</button>
+                </div>
+            </form>
+
+            {% if url %}
+            <div class="panel">
+                <div class="panel-header">Requested URL</div>
+                <div class="panel-body">
+                    <code>{{ url }}</code>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if response %}
+            <div class="panel">
+                <div class="panel-header">Response</div>
+                <div class="panel-body">
+                    <pre style="font-size:12px;">{{ response }}</pre>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">🔥 Payloads</div>
+                <div class="panel-body">
+
+                    <div class="payload" onclick="attack('http://example.com')">
+                        Normal request
+                    </div>
+
+                    <div class="payload" onclick="attack('http://127.0.0.1:5600/')">
+                        Localhost access
+                    </div>
+
+                    <div class="payload" onclick="attack('http://127.0.0.1:5600/vuln/admin/panel')">
+                        Access admin internally
+                    </div>
+
+                    <div class="payload" onclick="attack('http://localhost:5600/vuln/sqli')">
+                        Internal SQLi page
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function attack(payload) {
+            document.getElementById('url').value = payload;
+        }
+    </script>
+
+</body>
+
+</html>

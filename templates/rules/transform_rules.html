@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Transform Rules</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Rules Lab
+        </div>
+    </div>
+
+    <div class="test-page">
+
+        <!-- LEFT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">Trigger Request</div>
+                <div class="panel-body">
+
+                    <button class="btn btn-primary" onclick="hitEndpoint()">
+                        Send Request
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">Response</div>
+                <div class="panel-body">
+                    <div id="responseBox">No request yet</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+
+            <div class="panel">
+                <div class="panel-header">⚙️ WAF Config Guide</div>
+                <div class="panel-body">
+
+                    <p><b>Rule Type:</b> Transform Rule</p>
+
+                    <br>
+
+                    <p><b>Try:</b></p>
+                    <ul>
+                        <li>Replace "Welcome" → "Blocked"</li>
+                        <li>Inject custom HTML</li>
+                    </ul>
+
+                    <br>
+
+                    <p><b>Expected:</b></p>
+                    <ul>
+                        <li>Without WAF → Original content</li>
+                        <li>With WAF → Modified content</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function hitEndpoint() {
+            fetch('/rules/transform/test')
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('responseBox').innerHTML = data;
+                });
+        }
+    </script>
+
+</body>
+
+</html>
