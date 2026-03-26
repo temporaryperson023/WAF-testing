@@ -56,6 +56,9 @@
                         <span class="trigger-method">GET</span>
                         <span class="trigger-url-text">/rules/error/test</span>
                     </div>
+                    <!-- <button class="btn-trigger" onclick="hitEndpoint()">
+                        <a style="text-decoration: none; color: white;" href="/notexsist">↗ &nbsp;Send Request</a>
+                    </button> -->
                     <button class="btn-trigger" onclick="hitEndpoint()">
                         ↗ &nbsp;Send Request
                     </button>
@@ -199,6 +202,9 @@
                 .then(data => { box.textContent = data; })
                 .catch(err => { box.textContent = 'Error: ' + err.message; });
         }
+        // function hitEndpoint(){
+
+        // }
     </script>
 
 </body>

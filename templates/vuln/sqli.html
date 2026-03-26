@@ -6,7 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SQL Injection — WAF Test Lab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -19,18 +21,18 @@
       Vulnerability Lab
     </div>
     <div class="nav-links">
-      <a href="/vuln/sqli"   class="nav-link active">SQLi</a>
-      <a href="/vuln/xss"    class="nav-link">XSS</a>
+      <a href="/vuln/sqli" class="nav-link active">SQLi</a>
+      <a href="/vuln/xss" class="nav-link">XSS</a>
       <a href="/vuln/upload" class="nav-link">Upload</a>
-      <a href="/vuln/cmdi"   class="nav-link">CMDi</a>
-      <a href="/vuln/admin"  class="nav-link">Admin</a>
-      <a href="/vuln/ssrf"   class="nav-link">SSRF</a>
+      <a href="/vuln/cmdi" class="nav-link">CMDi</a>
+      <a href="/vuln/admin" class="nav-link">Admin</a>
+      <a href="/vuln/ssrf" class="nav-link">SSRF</a>
     </div>
   </nav>
 
   <!-- SIDEBAR TRIGGER -->
   <button class="sidebar-trigger" id="sidebarTrigger" aria-label="Open payloads">
-    <span class="sidebar-trigger-badge badge-trigger-red">5</span>
+    <span class="sidebar-trigger-badge badge-trigger-red">4</span>
     <span class="sidebar-trigger-label">Payloads</span>
     <span class="sidebar-trigger-icon">‹</span>
   </button>
@@ -64,7 +66,7 @@
           </div>
         </div>
 
-        <div class="payload-item">
+        <!-- <div class="payload-item">
           <div class="payload-meta">
             <span class="payload-name">Comment termination</span>
             <span class="payload-effect">Ignores the password check entirely</span>
@@ -73,7 +75,7 @@
             <span class="payload-code">admin'--</span>
             <button class="btn-use" data-payload="admin'--">Use</button>
           </div>
-        </div>
+        </div> -->
 
         <div class="payload-item">
           <div class="payload-meta">
@@ -97,7 +99,8 @@
           </div>
           <div class="payload-code-row">
             <span class="payload-code">' UNION SELECT id,username,password,role,email FROM users--</span>
-            <button class="btn-use" data-payload="' UNION SELECT id,username,password,role,email FROM users--">Use</button>
+            <button class="btn-use"
+              data-payload="' UNION SELECT id,username,password,role,email FROM users--">Use</button>
           </div>
         </div>
 
@@ -147,15 +150,13 @@
           <form method="POST" id="loginForm" class="form">
             <div class="field">
               <label class="field-label" for="username">Username</label>
-              <input class="field-input" type="text" id="username" name="username"
-                placeholder="Enter username" value="{{ username if username else '' }}"
-                autocomplete="off" spellcheck="false" />
+              <input class="field-input" type="text" id="username" name="username" placeholder="Enter username"
+                value="{{ username if username else '' }}" autocomplete="off" spellcheck="false" />
             </div>
             <div class="field">
               <label class="field-label" for="password">Password</label>
-              <input class="field-input" type="text" id="password" name="password"
-                placeholder="Enter password" value="{{ password if password else '' }}"
-                autocomplete="off" spellcheck="false" />
+              <input class="field-input" type="text" id="password" name="password" placeholder="Enter password"
+                value="{{ password if password else '' }}" autocomplete="off" spellcheck="false" />
             </div>
             <button class="btn btn-primary" type="submit">Login</button>
           </form>
@@ -187,7 +188,13 @@
           {% if result.rows %}
           <table class="data-table">
             <thead>
-              <tr><th>ID</th><th>Username</th><th>Password</th><th>Role</th><th>Email</th></tr>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Role</th>
+                <th>Email</th>
+              </tr>
             </thead>
             <tbody>
               {% for row in result.rows %}
@@ -272,10 +279,14 @@
         btn.addEventListener('click', () => {
           const u = document.getElementById('username');
           const p = document.getElementById('password');
+
           if (u) u.value = btn.dataset.payload;
           if (p) p.value = 'x';
+
           markUsed(btn);
-          setTimeout(() => { closeSidebar(); document.getElementById('loginForm').submit(); }, 400);
+
+          // Just close sidebar — no submit
+          setTimeout(() => { closeSidebar(); }, 300);
         });
       });
 
@@ -283,12 +294,29 @@
       document.querySelectorAll('.btn-copy-cred[data-field]').forEach(btn => {
         btn.addEventListener('click', () => {
           const field = document.getElementById(btn.dataset.field);
+
           if (field) field.value = btn.dataset.value;
-          navigator.clipboard.writeText(btn.dataset.value).catch(() => {});
-          const orig = btn.textContent;
+
+          // Clipboard fallback (important)
+          try {
+            navigator.clipboard.writeText(btn.dataset.value);
+          } catch (e) {
+            const temp = document.createElement("input");
+            temp.value = btn.dataset.value;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+          }
+
+          // Animation (force repaint)
           btn.textContent = 'copied';
           btn.classList.add('copied');
-          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+
+          setTimeout(() => {
+            btn.textContent = 'copy';
+            btn.classList.remove('copied');
+          }, 1500);
         });
       });
 
@@ -301,4 +329,5 @@
   </script>
 
 </body>
+
 </html>

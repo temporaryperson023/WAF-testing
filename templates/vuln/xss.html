@@ -6,7 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XSS — WAF Test Lab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -19,12 +21,12 @@
       Vulnerability Lab
     </div>
     <div class="nav-links">
-      <a href="/vuln/sqli"   class="nav-link">SQLi</a>
-      <a href="/vuln/xss"    class="nav-link active">XSS</a>
+      <a href="/vuln/sqli" class="nav-link">SQLi</a>
+      <a href="/vuln/xss" class="nav-link active">XSS</a>
       <a href="/vuln/upload" class="nav-link">Upload</a>
-      <a href="/vuln/cmdi"   class="nav-link">CMDi</a>
-      <a href="/vuln/admin"  class="nav-link">Admin</a>
-      <a href="/vuln/ssrf"   class="nav-link">SSRF</a>
+      <a href="/vuln/cmdi" class="nav-link">CMDi</a>
+      <a href="/vuln/admin" class="nav-link">Admin</a>
+      <a href="/vuln/ssrf" class="nav-link">SSRF</a>
     </div>
   </nav>
 
@@ -134,8 +136,8 @@
             <div class="field">
               <label class="field-label" for="searchInput">Search Query</label>
               <input class="field-input" type="text" id="searchInput" name="q"
-                placeholder="Enter search term or XSS payload"
-                value="{{ query | e }}" autocomplete="off" spellcheck="false" />
+                placeholder="Enter search term or XSS payload" value="{{ query | e }}" autocomplete="off"
+                spellcheck="false" />
             </div>
             <button class="btn btn-primary" type="submit">Search</button>
           </form>
@@ -246,10 +248,21 @@
       // Use buttons — run payload via URL navigation
       document.querySelectorAll('.btn-use[data-payload]').forEach(btn => {
         btn.addEventListener('click', () => {
+          const input = document.getElementById('searchInput');
+
+          if (input) {
+            input.value = btn.dataset.payload;
+
+            // optional UX improvement
+            input.focus();
+            input.select();
+          }
+
           markUsed(btn);
+
+          // only close sidebar — NO navigation
           setTimeout(() => {
             closeSidebar();
-            window.location.href = '?q=' + encodeURIComponent(btn.dataset.payload);
           }, 300);
         });
       });
@@ -262,4 +275,5 @@
   </script>
 
 </body>
+
 </html>
