@@ -1,81 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Error Rules</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error Rules — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'">
             <div class="nav-brand-dot"></div>
             Rules Lab
         </div>
-    </div>
+        <div class="rules-nav">
+            <a href="/rules/error" class="nav-link active">Error</a>
+            <a href="/rules/header" class="nav-link">Header</a>
+            <a href="/rules/redirect" class="nav-link">Redirect</a>
+            <a href="/rules/variable" class="nav-link">Variable</a>
+            <a href="/rules/transform" class="nav-link">Transform</a>
+            <a href="/rules/forwarder" class="nav-link">Forwarder</a>
+            <a href="/rules/capture" class="nav-link">Capture</a>
+            <a href="/rules/upstream" class="nav-link">Upstream</a>
+        </div>
+    </nav>
 
-    <div class="test-page">
+    <main class="page">
+
+        <div class="page-header">
+            <a href="/rules/" class="back-link">← Back to Rules Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-owasp">Rule Type — Error Rule</span>
+            </div>
+            <h1 class="page-title">Error Rules</h1>
+            <p class="page-desc">
+                This endpoint returns a raw <code>404 JSON</code> error response from the backend.
+                Configure an Error Rule in your WAF to intercept this status code and replace
+                the response with a custom error page or message.
+            </p>
+        </div>
 
         <!-- LEFT -->
-        <div class="col">
+        <div class="col-left">
 
-            <div class="panel">
-                <div class="panel-header">Trigger Request</div>
-                <div class="panel-body">
-
-                    <p>This endpoint returns a 404 JSON error.</p>
-                    <br>
-
-                    <button class="btn btn-primary" onclick="hitEndpoint()">
-                        Send Request
+            <div class="trigger-panel">
+                <div class="trigger-panel-header">Trigger Request</div>
+                <div class="trigger-panel-body">
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/error/test</span>
+                    </div>
+                    <button class="btn-trigger" onclick="hitEndpoint()">
+                        ↗ &nbsp;Send Request
                     </button>
-
+                    <p class="trigger-hint">
+                        Hits the error endpoint. Without WAF you'll see raw JSON.
+                        With an Error Rule active the WAF should replace the response.
+                    </p>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">Response</div>
-                <div class="panel-body">
-                    <pre id="responseBox">No request sent</pre>
+            <div class="output-box">
+                <div class="output-box-bar">
+                    <span class="output-box-label">Response</span>
+                    <span class="output-box-status badge-red" id="statusBadge" style="display:none;"></span>
                 </div>
+                <div class="output-box-body">
+                    <pre class="output-pre-empty" id="responseBox">No request sent yet</pre>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>Endpoint behaviour —</strong> <code>/rules/error/test</code> always
+                returns HTTP <code>404</code> with a JSON body. The raw backend never serves
+                HTML — if you see HTML after sending, your WAF Error Rule is working correctly.
             </div>
 
         </div>
 
         <!-- RIGHT -->
-        <div class="col">
+        <div class="col-right">
 
-            <div class="panel">
-                <div class="panel-header">⚙️ WAF Config Guide</div>
-                <div class="panel-body">
+            <div class="waf-guide">
+                <div class="waf-guide-header">
+                    <span class="waf-guide-title">WAF Config Guide</span>
+                    <span class="waf-box-badge">Error Rule</span>
+                </div>
+                <div class="waf-guide-body">
 
-                    <p><b>Rule Type:</b> Error Rule</p>
-                    <p><b>Status Code:</b> 404</p>
-                    <p><b>Action:</b> Replace Response</p>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Rule Type</span>
+                        <span class="waf-guide-row-value">Error Rule</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Trigger Status Code</span>
+                        <span class="waf-guide-row-value">404</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Action</span>
+                        <span class="waf-guide-row-value">Replace Response Body</span>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Expected Behavior:</b></p>
-                    <ul>
-                        <li>Without WAF → JSON</li>
-                        <li>With WAF → Custom HTML page</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Expected Behavior</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="compare-row">
+                                <div class="compare-cell without">
+                                    <span class="compare-cell-label">Without WAF</span>
+                                    <span class="compare-cell-value">Raw JSON error body</span>
+                                </div>
+                                <div class="compare-cell with">
+                                    <span class="compare-cell-label">With WAF</span>
+                                    <span class="compare-cell-value">Custom HTML error page</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="waf-guide-divider"></div>
+
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Steps</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Set match condition: <code>status == 404</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Set action to replace response with your custom HTML
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Send the request and verify the output changed
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flow">
+                <div class="flow-step">
+                    <span class="flow-step-num">01</span>
+                    <div>
+                        <div class="flow-step-title">Request hits <code>/rules/error/test</code></div>
+                        <div class="flow-step-desc">Backend always responds with HTTP 404 JSON</div>
+                    </div>
+                </div>
+                <div class="flow-step blocked">
+                    <span class="flow-step-num">02</span>
+                    <div>
+                        <div class="flow-step-title">WAF intercepts the 404 response</div>
+                        <div class="flow-step-desc">Error Rule matches on status code and replaces the body</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <span class="flow-step-num">03</span>
+                    <div>
+                        <div class="flow-step-title">Client receives custom error page</div>
+                        <div class="flow-step-desc">WAF-defined HTML served instead of raw JSON</div>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-    </div>
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — Error Rules</span>
+        <span class="footer-right">WAF Validation Mode</span>
+    </footer>
 
     <script>
         function hitEndpoint() {
+            const box = document.getElementById('responseBox');
+            const badge = document.getElementById('statusBadge');
+            box.className = 'output-pre';
+            box.textContent = 'Fetching…';
+            badge.style.display = 'none';
+
             fetch('/rules/error/test')
-                .then(res => res.text())
-                .then(data => {
-                    document.getElementById('responseBox').innerText = data;
-                });
+                .then(res => {
+                    badge.textContent = 'HTTP ' + res.status;
+                    badge.className = 'output-box-status ' + (res.status < 300 ? 'badge-green' : 'badge-red');
+                    badge.style.display = 'inline-block';
+                    return res.text();
+                })
+                .then(data => { box.textContent = data; })
+                .catch(err => { box.textContent = 'Error: ' + err.message; });
         }
     </script>
 

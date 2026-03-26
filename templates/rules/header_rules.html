@@ -1,120 +1,255 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Header Rules</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Header Rules — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'">
             <div class="nav-brand-dot"></div>
             Rules Lab
         </div>
-    </div>
+        <div class="rules-nav">
+            <a href="/rules/error" class="nav-link">Error</a>
+            <a href="/rules/header" class="nav-link active">Header</a>
+            <a href="/rules/redirect" class="nav-link">Redirect</a>
+            <a href="/rules/variable" class="nav-link">Variable</a>
+            <a href="/rules/transform" class="nav-link">Transform</a>
+            <a href="/rules/forwarder" class="nav-link">Forwarder</a>
+            <a href="/rules/capture" class="nav-link">Capture</a>
+            <a href="/rules/upstream" class="nav-link">Upstream</a>
+        </div>
+    </nav>
 
-    <div class="test-page">
+    <main class="page">
+
+        <div class="page-header">
+            <a href="/rules/" class="back-link">← Back to Rules Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-owasp">Rule Type — Header Rule</span>
+            </div>
+            <h1 class="page-title">Header Rules</h1>
+            <p class="page-desc">
+                Send a request and inspect both the outgoing request headers and the
+                incoming response headers. Configure a Header Rule in your WAF to
+                inject, modify, or strip headers like <code>X-WAF: Active</code>
+                and verify they appear in the output below.
+            </p>
+        </div>
 
         <!-- LEFT -->
-        <div class="col">
+        <div class="col-left">
 
-            <div class="panel">
-                <div class="panel-header">Trigger Request</div>
-                <div class="panel-body">
-
-                    <button class="btn btn-primary" onclick="hitEndpoint()">
-                        Send Request
+            <div class="trigger-panel">
+                <div class="trigger-panel-header">Trigger Request</div>
+                <div class="trigger-panel-body">
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/header/test</span>
+                    </div>
+                    <button class="btn-trigger" onclick="hitEndpoint()">
+                        ↗ &nbsp;Send Request
                     </button>
-
+                    <p class="trigger-hint">
+                        Sends a fetch request and displays both request and response headers.
+                        WAF-injected headers will appear in the response headers panel.
+                    </p>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">Response</div>
-                <div class="panel-body">
-                    <pre id="responseBox">No request yet</pre>
+            <div class="headers-display">
+                <div class="headers-display-bar">
+                    <span class="headers-display-label">📤 Request Headers</span>
+                </div>
+                <div class="headers-display-body">
+                    <pre class="headers-display-pre" id="requestHeaders">No request sent yet</pre>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">📤 Request Headers</div>
-                <div class="panel-body">
-                    <pre id="requestHeaders">No data</pre>
+            <div class="headers-display">
+                <div class="headers-display-bar">
+                    <span class="headers-display-label">📥 Response Headers</span>
+                    <span class="output-box-status badge-green" id="wafBadge" style="display:none;">WAF Header
+                        Detected</span>
+                </div>
+                <div class="headers-display-body">
+                    <pre class="headers-display-pre" id="responseHeaders">No request sent yet</pre>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">📥 Response Headers</div>
-                <div class="panel-body">
-                    <pre id="responseHeaders">No data</pre>
+            <div class="output-box">
+                <div class="output-box-bar">
+                    <span class="output-box-label">Response Body</span>
+                    <span class="output-box-status badge-green" id="statusBadge" style="display:none;"></span>
+                </div>
+                <div class="output-box-body">
+                    <pre class="output-pre-empty" id="responseBox">No request sent yet</pre>
                 </div>
             </div>
 
         </div>
 
         <!-- RIGHT -->
-        <div class="col">
+        <div class="col-right">
 
-            <div class="panel">
-                <div class="panel-header">⚙️ WAF Config Guide</div>
-                <div class="panel-body">
+            <div class="waf-guide">
+                <div class="waf-guide-header">
+                    <span class="waf-guide-title">WAF Config Guide</span>
+                    <span class="waf-box-badge">Header Rule</span>
+                </div>
+                <div class="waf-guide-body">
 
-                    <p><b>Rule Type:</b> Header Rule</p>
-                    <p><b>Action:</b> Add Header</p>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Rule Type</span>
+                        <span class="waf-guide-row-value">Header Rule</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Action</span>
+                        <span class="waf-guide-row-value">Add / Modify / Strip Header</span>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Try Adding:</b></p>
-                    <ul>
-                        <li>X-WAF: Active</li>
-                        <li>X-Security: Enabled</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Try Adding</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                <code>X-WAF: Active</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                <code>X-Security: Enabled</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                <code>X-Request-ID: &lt;generated&gt;</code>
+                            </div>
+                        </div>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Expected:</b></p>
-                    <ul>
-                        <li>Without WAF → No extra headers</li>
-                        <li>With WAF → Headers visible</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Expected Behavior</span>
+                        <div style="margin-top:0.35rem;">
+                            <div class="compare-row">
+                                <div class="compare-cell without">
+                                    <span class="compare-cell-label">Without WAF</span>
+                                    <span class="compare-cell-value">No extra headers</span>
+                                </div>
+                                <div class="compare-cell with">
+                                    <span class="compare-cell-label">With WAF</span>
+                                    <span class="compare-cell-value">Custom headers visible</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>
 
+            <div class="flow">
+                <div class="flow-step">
+                    <span class="flow-step-num">01</span>
+                    <div>
+                        <div class="flow-step-title">Request sent to <code>/rules/header/test</code></div>
+                        <div class="flow-step-desc">Backend echoes back all received request headers</div>
+                    </div>
+                </div>
+                <div class="flow-step blocked">
+                    <span class="flow-step-num">02</span>
+                    <div>
+                        <div class="flow-step-title">WAF processes the request/response</div>
+                        <div class="flow-step-desc">Header Rule injects or strips configured headers</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <span class="flow-step-num">03</span>
+                    <div>
+                        <div class="flow-step-title">Headers visible in the panels</div>
+                        <div class="flow-step-desc">Compare request vs response headers to spot WAF additions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>Tip —</strong> Browser security restricts access to some response headers
+                via <code>fetch()</code>. If a WAF-injected header doesn't appear here,
+                check your browser DevTools → Network tab for the full header list.
+            </div>
+
         </div>
 
-    </div>
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — Header Rules</span>
+        <span class="footer-right">WAF Validation Mode</span>
+    </footer>
 
     <script>
         function hitEndpoint() {
+            const reqBox = document.getElementById('requestHeaders');
+            const resBox = document.getElementById('responseHeaders');
+            const body = document.getElementById('responseBox');
+            const badge = document.getElementById('statusBadge');
+            const wafBadge = document.getElementById('wafBadge');
+
+            reqBox.className = 'headers-display-pre';
+            resBox.className = 'headers-display-pre';
+            body.className = 'output-pre';
+            reqBox.textContent = 'Fetching…';
+            resBox.textContent = 'Fetching…';
+            body.textContent = 'Fetching…';
+            badge.style.display = 'none';
+            wafBadge.style.display = 'none';
+
             fetch('/rules/header/test')
                 .then(res => {
+                    badge.textContent = 'HTTP ' + res.status;
+                    badge.className = 'output-box-status badge-green';
+                    badge.style.display = 'inline-block';
 
-                    // RESPONSE HEADERS
-                    let resHeaders = "";
+                    let resHeaders = '';
+                    let hasWaf = false;
                     res.headers.forEach((value, key) => {
-                        resHeaders += key + ": " + value + "\n";
+                        resHeaders += key + ': ' + value + '\n';
+                        if (key.toLowerCase().startsWith('x-waf') || key.toLowerCase().startsWith('x-security')) {
+                            hasWaf = true;
+                        }
                     });
+                    resBox.textContent = resHeaders || '(no headers visible via fetch)';
 
-                    document.getElementById('responseHeaders').innerText = resHeaders;
+                    if (hasWaf) {
+                        wafBadge.style.display = 'inline-block';
+                    }
 
                     return res.json();
                 })
                 .then(data => {
+                    body.textContent = JSON.stringify(data, null, 2);
 
-                    // RESPONSE BODY
-                    document.getElementById('responseBox').innerText =
-                        JSON.stringify(data, null, 2);
-
-                    // REQUEST HEADERS
-                    let reqHeaders = "";
-                    for (let key in data.request_headers) {
-                        reqHeaders += key + ": " + data.request_headers[key] + "\n";
+                    let reqHeaders = '';
+                    if (data.request_headers) {
+                        for (const [k, v] of Object.entries(data.request_headers)) {
+                            reqHeaders += k + ': ' + v + '\n';
+                        }
                     }
-
-                    document.getElementById('requestHeaders').innerText = reqHeaders;
+                    reqBox.textContent = reqHeaders || '(none returned)';
+                })
+                .catch(err => {
+                    body.textContent = 'Error: ' + err.message;
                 });
         }
     </script>

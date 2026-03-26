@@ -1,84 +1,240 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Upstream Rules</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capture Rules — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'">
             <div class="nav-brand-dot"></div>
             Rules Lab
         </div>
-    </div>
+        <div class="rules-nav">
+            <a href="/rules/error" class="nav-link">Error</a>
+            <a href="/rules/header" class="nav-link">Header</a>
+            <a href="/rules/redirect" class="nav-link">Redirect</a>
+            <a href="/rules/variable" class="nav-link">Variable</a>
+            <a href="/rules/transform" class="nav-link">Transform</a>
+            <a href="/rules/forwarder" class="nav-link">Forwarder</a>
+            <a href="/rules/capture" class="nav-link active">Capture</a>
+            <a href="/rules/upstream" class="nav-link">Upstream</a>
+        </div>
+    </nav>
 
-    <div class="test-page">
+    <main class="page">
+
+        <div class="page-header">
+            <a href="/rules/" class="back-link">← Back to Rules Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-owasp">Rule Type — Capture Rule</span>
+            </div>
+            <h1 class="page-title">Capture Rules</h1>
+            <p class="page-desc">
+                Send a request with a <code>user</code> parameter and verify the WAF
+                captures or logs the data before passing the request through to the backend.
+                The response itself passes normally — capture is a logging-only action.
+            </p>
+        </div>
 
         <!-- LEFT -->
-        <div class="col">
+        <div class="col-left">
 
-            <div class="panel">
-                <div class="panel-header">Trigger Request</div>
-                <div class="panel-body">
-
-                    <button class="btn btn-primary" onclick="hitEndpoint()">
-                        Send Request
+            <div class="trigger-panel">
+                <div class="trigger-panel-header">Send Request</div>
+                <div class="trigger-panel-body">
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/capture/test?user=</span>
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="user">user param</label>
+                        <input class="field-input" type="text" id="user" placeholder="e.g. kartik" autocomplete="off" />
+                    </div>
+                    <button class="btn-trigger" onclick="sendRequest()">
+                        ↗ &nbsp;Send Request
                     </button>
-
+                    <p class="trigger-hint">
+                        The backend echoes back the <code>user</code> param and
+                        <code>User-Agent</code> header. The WAF should capture these
+                        values in its logs without modifying the response.
+                    </p>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">Response</div>
-                <div class="panel-body">
-                    <pre id="resultBox">No request yet</pre>
+            <div class="output-box">
+                <div class="output-box-bar">
+                    <span class="output-box-label">Backend Response</span>
+                    <span class="output-box-status badge-green" id="statusBadge" style="display:none;"></span>
                 </div>
+                <div class="output-box-body">
+                    <pre class="output-pre-empty" id="resultBox">No request sent yet</pre>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>How to verify —</strong> Unlike other rules, Capture Rules don't
+                change the response. Verification is done by checking your WAF's
+                log dashboard — the captured <code>user</code> and <code>User-Agent</code>
+                values should appear there after each request.
             </div>
 
         </div>
 
         <!-- RIGHT -->
-        <div class="col">
+        <div class="col-right">
 
-            <div class="panel">
-                <div class="panel-header">⚙️ WAF Config Guide</div>
-                <div class="panel-body">
+            <div class="waf-guide">
+                <div class="waf-guide-header">
+                    <span class="waf-guide-title">WAF Config Guide</span>
+                    <span class="waf-box-badge">Capture Rule</span>
+                </div>
+                <div class="waf-guide-body">
 
-                    <p><b>Rule Type:</b> Upstream Rule</p>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Rule Type</span>
+                        <span class="waf-guide-row-value">Capture Rule</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Match Path</span>
+                        <span class="waf-guide-row-value">
+                            <code style="font-family:var(--font-mono);font-size:0.85em;">/rules/capture/test</code>
+                        </span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Action</span>
+                        <span class="waf-guide-row-value">Log / Capture request data</span>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Try:</b></p>
-                    <ul>
-                        <li>Route /upstream/test → /upstream/alt</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Try Capturing</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Query param: <code>user</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Header: <code>User-Agent</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Source IP of the request
+                            </div>
+                        </div>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Expected:</b></p>
-                    <ul>
-                        <li>Without WAF → main-server</li>
-                        <li>With WAF → alternate-server</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Expected Behavior</span>
+                        <div style="margin-top:0.35rem;">
+                            <div class="compare-row">
+                                <div class="compare-cell without">
+                                    <span class="compare-cell-label">Without WAF</span>
+                                    <span class="compare-cell-value">Response only — no logging</span>
+                                </div>
+                                <div class="compare-cell with">
+                                    <span class="compare-cell-label">With WAF</span>
+                                    <span class="compare-cell-value">Data logged in WAF dashboard</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="waf-guide-divider"></div>
+
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Steps</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Match on path: <code>/rules/capture/test</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Set fields to capture: <code>user</code>, <code>User-Agent</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Send a request, then check WAF logs for captured data
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flow">
+                <div class="flow-step">
+                    <span class="flow-step-num">01</span>
+                    <div>
+                        <div class="flow-step-title">Request sent with <code>user</code> param</div>
+                        <div class="flow-step-desc">Also includes <code>User-Agent</code> header automatically</div>
+                    </div>
+                </div>
+                <div class="flow-step blocked">
+                    <span class="flow-step-num">02</span>
+                    <div>
+                        <div class="flow-step-title">WAF captures configured fields</div>
+                        <div class="flow-step-desc">Logs <code>user</code> and <code>User-Agent</code> — request passes
+                            through unchanged</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <span class="flow-step-num">03</span>
+                    <div>
+                        <div class="flow-step-title">Backend receives unmodified request</div>
+                        <div class="flow-step-desc">Response is normal — verify capture via WAF log dashboard</div>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-    </div>
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — Capture Rules</span>
+        <span class="footer-right">WAF Validation Mode</span>
+    </footer>
 
     <script>
-        function hitEndpoint() {
-            fetch('/rules/upstream/test')
-                .then(res => res.json())
+        function sendRequest() {
+            const user = document.getElementById('user').value;
+            const box = document.getElementById('resultBox');
+            const badge = document.getElementById('statusBadge');
+
+            box.className = 'output-pre';
+            box.textContent = 'Fetching…';
+            badge.style.display = 'none';
+
+            const url = `/rules/capture/test?user=${encodeURIComponent(user)}`;
+
+            fetch(url)
+                .then(res => {
+                    badge.textContent = 'HTTP ' + res.status;
+                    badge.style.display = 'inline-block';
+                    return res.json();
+                })
                 .then(data => {
-                    document.getElementById('resultBox').innerText =
-                        JSON.stringify(data, null, 2);
-                });
+                    box.textContent =
+                        JSON.stringify(data, null, 2) +
+                        '\n\n— Request passed through normally.\n' +
+                        '  Check your WAF log dashboard to confirm capture.';
+                })
+                .catch(err => { box.textContent = 'Error: ' + err.message; });
         }
     </script>
 

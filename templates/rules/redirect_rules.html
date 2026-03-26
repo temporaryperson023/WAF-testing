@@ -1,97 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Redirect Rules</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirect Rules — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'">
             <div class="nav-brand-dot"></div>
             Rules Lab
         </div>
-    </div>
+        <div class="rules-nav">
+            <a href="/rules/error" class="nav-link">Error</a>
+            <a href="/rules/header" class="nav-link">Header</a>
+            <a href="/rules/redirect" class="nav-link active">Redirect</a>
+            <a href="/rules/variable" class="nav-link">Variable</a>
+            <a href="/rules/transform" class="nav-link">Transform</a>
+            <a href="/rules/forwarder" class="nav-link">Forwarder</a>
+            <a href="/rules/capture" class="nav-link">Capture</a>
+            <a href="/rules/upstream" class="nav-link">Upstream</a>
+        </div>
+    </nav>
 
-    <div class="test-page">
+    <main class="page">
+
+        <div class="page-header">
+            <a href="/rules/" class="back-link">← Back to Rules Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-owasp">Rule Type — Redirect Rule</span>
+            </div>
+            <h1 class="page-title">Redirect Rules</h1>
+            <p class="page-desc">
+                Send a request to the test endpoint and verify the WAF intercepts it
+                and issues a <code>302</code> redirect to the configured target URL.
+                Without a rule, the backend returns a plain JSON response with no redirect.
+            </p>
+        </div>
 
         <!-- LEFT -->
-        <div class="col">
+        <div class="col-left">
 
-            <div class="panel">
-                <div class="panel-header">Trigger Request</div>
-                <div class="panel-body">
-
-                    <button class="btn btn-primary" onclick="hitEndpoint()">
-                        Send Request
+            <div class="trigger-panel">
+                <div class="trigger-panel-header">Trigger Request</div>
+                <div class="trigger-panel-body">
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/redirect/test</span>
+                    </div>
+                    <button class="btn-trigger" onclick="hitEndpoint()">
+                        ↗ &nbsp;Send Request
                     </button>
-
+                    <p class="trigger-hint">
+                        Uses <code>redirect: "manual"</code> so the browser doesn't follow
+                        the redirect automatically — the 3xx status is captured and shown below.
+                    </p>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">Result</div>
-                <div class="panel-body">
-                    <pre id="resultBox">No request yet</pre>
+            <div class="output-box">
+                <div class="output-box-bar">
+                    <span class="output-box-label">Result</span>
+                    <span class="output-box-status" id="statusBadge" style="display:none;"></span>
                 </div>
+                <div class="output-box-body">
+                    <pre class="output-pre-empty" id="resultBox">No request sent yet</pre>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>How detection works —</strong> The fetch uses
+                <code>redirect: "manual"</code> which prevents the browser from
+                silently following the redirect. A status in the <code>300–399</code>
+                range means the WAF Redirect Rule fired successfully.
             </div>
 
         </div>
 
         <!-- RIGHT -->
-        <div class="col">
+        <div class="col-right">
 
-            <div class="panel">
-                <div class="panel-header">⚙️ WAF Config Guide</div>
-                <div class="panel-body">
+            <div class="waf-guide">
+                <div class="waf-guide-header">
+                    <span class="waf-guide-title">WAF Config Guide</span>
+                    <span class="waf-box-badge">Redirect Rule</span>
+                </div>
+                <div class="waf-guide-body">
 
-                    <p><b>Rule Type:</b> Redirect Rule</p>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Rule Type</span>
+                        <span class="waf-guide-row-value">Redirect Rule</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Match Path</span>
+                        <span class="waf-guide-row-value"><code
+                                style="font-family:var(--font-mono);font-size:0.85em;">/rules/redirect/test</code></span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Redirect To</span>
+                        <span class="waf-guide-row-value"><code
+                                style="font-family:var(--font-mono);font-size:0.85em;">/rules/redirect/target</code></span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Status Code</span>
+                        <span class="waf-guide-row-value">302 Found</span>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Try:</b></p>
-                    <ul>
-                        <li>Redirect to /rules/redirect/target</li>
-                        <li>Status: 302</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Expected Behavior</span>
+                        <div style="margin-top:0.35rem;">
+                            <div class="compare-row">
+                                <div class="compare-cell without">
+                                    <span class="compare-cell-label">Without WAF</span>
+                                    <span class="compare-cell-value">JSON — no redirect</span>
+                                </div>
+                                <div class="compare-cell with">
+                                    <span class="compare-cell-label">With WAF</span>
+                                    <span class="compare-cell-value">302 + Location header</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Expected:</b></p>
-                    <ul>
-                        <li>Without WAF → JSON response</li>
-                        <li>With WAF → Page redirect</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Steps</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Match on path: <code>/rules/redirect/test</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Set redirect target to <code>/rules/redirect/target</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Set status code to <code>302</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Send request — result should show redirect detected
+                            </div>
+                        </div>
+                    </div>
 
+                </div>
+            </div>
+
+            <div class="flow">
+                <div class="flow-step">
+                    <span class="flow-step-num">01</span>
+                    <div>
+                        <div class="flow-step-title">Request sent to <code>/rules/redirect/test</code></div>
+                        <div class="flow-step-desc">Backend would normally return a plain JSON response</div>
+                    </div>
+                </div>
+                <div class="flow-step blocked">
+                    <span class="flow-step-num">02</span>
+                    <div>
+                        <div class="flow-step-title">WAF intercepts and issues redirect</div>
+                        <div class="flow-step-desc">Returns <code>302</code> with <code>Location</code> header set</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <span class="flow-step-num">03</span>
+                    <div>
+                        <div class="flow-step-title">Client receives redirect response</div>
+                        <div class="flow-step-desc">Status and Location header captured and shown below</div>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-    </div>
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — Redirect Rules</span>
+        <span class="footer-right">WAF Validation Mode</span>
+    </footer>
 
     <script>
         function hitEndpoint() {
-            fetch('/rules/redirect/test', {
-                redirect: "manual"  // important
-            })
-                .then(res => {
+            const box = document.getElementById('resultBox');
+            const badge = document.getElementById('statusBadge');
+            box.className = 'output-pre';
+            box.textContent = 'Fetching…';
+            badge.style.display = 'none';
 
-                    if (res.status >= 300 && res.status < 400) {
-                        document.getElementById('resultBox').innerText =
-                            "Redirect detected!\nStatus: " + res.status +
-                            "\nLocation: " + res.headers.get("Location");
+            fetch('/rules/redirect/test', { redirect: 'manual' })
+                .then(res => {
+                    const isRedirect = res.status >= 300 && res.status < 400;
+                    badge.textContent = 'HTTP ' + res.status;
+                    badge.className = 'output-box-status ' + (isRedirect ? 'badge-green' : 'badge-red');
+                    badge.style.display = 'inline-block';
+
+                    if (isRedirect) {
+                        const location = res.headers.get('Location') || '(not accessible via fetch)';
+                        box.textContent =
+                            '✓ Redirect detected!\n\n' +
+                            'Status   : ' + res.status + '\n' +
+                            'Location : ' + location + '\n\n' +
+                            'Your WAF Redirect Rule is working correctly.';
                     } else {
                         return res.text().then(data => {
-                            document.getElementById('resultBox').innerText = data;
+                            box.textContent =
+                                '✗ No redirect — WAF rule not active.\n\n' +
+                                'Raw backend response:\n' + data;
                         });
                     }
-
                 })
                 .catch(err => {
-                    document.getElementById('resultBox').innerText = err;
+                    box.textContent = 'Error: ' + err.message;
                 });
         }
     </script>

@@ -1,87 +1,252 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Transform Rules</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transform Rules — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'">
             <div class="nav-brand-dot"></div>
             Rules Lab
         </div>
-    </div>
+        <div class="rules-nav">
+            <a href="/rules/error" class="nav-link">Error</a>
+            <a href="/rules/header" class="nav-link">Header</a>
+            <a href="/rules/redirect" class="nav-link">Redirect</a>
+            <a href="/rules/variable" class="nav-link">Variable</a>
+            <a href="/rules/transform" class="nav-link active">Transform</a>
+            <a href="/rules/forwarder" class="nav-link">Forwarder</a>
+            <a href="/rules/capture" class="nav-link">Capture</a>
+            <a href="/rules/upstream" class="nav-link">Upstream</a>
+        </div>
+    </nav>
 
-    <div class="test-page">
+    <main class="page">
+
+        <div class="page-header">
+            <a href="/rules/" class="back-link">← Back to Rules Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-owasp">Rule Type — Transform Rule</span>
+            </div>
+            <h1 class="page-title">Transform Rules</h1>
+            <p class="page-desc">
+                Fetch the backend response and verify the WAF rewrites its content before
+                it reaches the client. The raw backend returns a plain HTML snippet —
+                a Transform Rule should modify or replace text within it.
+            </p>
+        </div>
 
         <!-- LEFT -->
-        <div class="col">
+        <div class="col-left">
 
-            <div class="panel">
-                <div class="panel-header">Trigger Request</div>
-                <div class="panel-body">
-
-                    <button class="btn btn-primary" onclick="hitEndpoint()">
-                        Send Request
+            <div class="trigger-panel">
+                <div class="trigger-panel-header">Trigger Request</div>
+                <div class="trigger-panel-body">
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/transform/test</span>
+                    </div>
+                    <button class="btn-trigger" onclick="hitEndpoint()">
+                        ↗ &nbsp;Send Request
                     </button>
-
+                    <p class="trigger-hint">
+                        Fetches the backend HTML and renders it below. With an active
+                        Transform Rule the WAF should rewrite the content before delivery.
+                    </p>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">Response</div>
-                <div class="panel-body">
-                    <div id="responseBox">No request yet</div>
+            <div class="render-box">
+                <div class="render-box-bar">
+                    <span class="render-box-label">Rendered Output</span>
+                    <span class="render-box-badge" id="transformBadge" style="display:none;">Possibly Transformed</span>
                 </div>
+                <div class="render-box-body" id="responseBox">
+                    <span style="font-family:var(--font-mono);font-size:0.82rem;color:var(--text-3);font-style:italic;">
+                        No request sent yet
+                    </span>
+                </div>
+            </div>
+
+            <div class="output-box">
+                <div class="output-box-bar">
+                    <span class="output-box-label">Raw Response Text</span>
+                    <span class="output-box-status badge-green" id="statusBadge" style="display:none;"></span>
+                </div>
+                <div class="output-box-body">
+                    <pre class="output-pre-empty" id="rawBox">No request sent yet</pre>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>What to look for —</strong> The raw backend response contains
+                the text <code>"Welcome User"</code>. If your Transform Rule replaces
+                it with something else, both the rendered output and raw text above
+                will reflect the change.
             </div>
 
         </div>
 
         <!-- RIGHT -->
-        <div class="col">
+        <div class="col-right">
 
-            <div class="panel">
-                <div class="panel-header">⚙️ WAF Config Guide</div>
-                <div class="panel-body">
+            <div class="waf-guide">
+                <div class="waf-guide-header">
+                    <span class="waf-guide-title">WAF Config Guide</span>
+                    <span class="waf-box-badge">Transform Rule</span>
+                </div>
+                <div class="waf-guide-body">
 
-                    <p><b>Rule Type:</b> Transform Rule</p>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Rule Type</span>
+                        <span class="waf-guide-row-value">Transform Rule</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Match Path</span>
+                        <span class="waf-guide-row-value">
+                            <code style="font-family:var(--font-mono);font-size:0.85em;">/rules/transform/test</code>
+                        </span>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Try:</b></p>
-                    <ul>
-                        <li>Replace "Welcome" → "Blocked"</li>
-                        <li>Inject custom HTML</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Try These Transforms</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Replace <code>Welcome</code> → <code>Blocked</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Inject a custom banner into the HTML body
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Strip all <code>&lt;p&gt;</code> tags from the response
+                            </div>
+                        </div>
+                    </div>
 
-                    <br>
+                    <div class="waf-guide-divider"></div>
 
-                    <p><b>Expected:</b></p>
-                    <ul>
-                        <li>Without WAF → Original content</li>
-                        <li>With WAF → Modified content</li>
-                    </ul>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Expected Behavior</span>
+                        <div style="margin-top:0.35rem;">
+                            <div class="compare-row">
+                                <div class="compare-cell without">
+                                    <span class="compare-cell-label">Without WAF</span>
+                                    <span class="compare-cell-value">Original backend HTML</span>
+                                </div>
+                                <div class="compare-cell with">
+                                    <span class="compare-cell-label">With WAF</span>
+                                    <span class="compare-cell-value">Modified / rewritten content</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="waf-guide-divider"></div>
+
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Raw Backend Response</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                <code>&lt;h2&gt;Welcome User&lt;/h2&gt;</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                <code>&lt;p&gt;This is a normal response from backend.&lt;/p&gt;</code>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flow">
+                <div class="flow-step">
+                    <span class="flow-step-num">01</span>
+                    <div>
+                        <div class="flow-step-title">Request hits <code>/rules/transform/test</code></div>
+                        <div class="flow-step-desc">Backend returns a plain HTML snippet with "Welcome User"</div>
+                    </div>
+                </div>
+                <div class="flow-step blocked">
+                    <span class="flow-step-num">02</span>
+                    <div>
+                        <div class="flow-step-title">WAF intercepts the response body</div>
+                        <div class="flow-step-desc">Transform Rule rewrites matching text before delivery</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <span class="flow-step-num">03</span>
+                    <div>
+                        <div class="flow-step-title">Modified content reaches the client</div>
+                        <div class="flow-step-desc">Both rendered view and raw text reflect the change</div>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-    </div>
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — Transform Rules</span>
+        <span class="footer-right">WAF Validation Mode</span>
+    </footer>
 
     <script>
         function hitEndpoint() {
+            const rendered = document.getElementById('responseBox');
+            const raw = document.getElementById('rawBox');
+            const badge = document.getElementById('statusBadge');
+            const tBadge = document.getElementById('transformBadge');
+
+            rendered.innerHTML = '<span style="font-family:var(--font-mono);font-size:0.82rem;color:var(--text-3);">Fetching…</span>';
+            raw.className = 'output-pre';
+            raw.textContent = 'Fetching…';
+            badge.style.display = 'none';
+            tBadge.style.display = 'none';
+
             fetch('/rules/transform/test')
-                .then(res => res.text())
+                .then(res => {
+                    badge.textContent = 'HTTP ' + res.status;
+                    badge.className = 'output-box-status badge-green';
+                    badge.style.display = 'inline-block';
+                    return res.text();
+                })
                 .then(data => {
-                    document.getElementById('responseBox').innerHTML = data;
+                    rendered.innerHTML = data;
+                    raw.textContent = data;
+
+                    // Show badge if content looks different from the known raw response
+                    const original = 'Welcome User';
+                    if (!data.includes(original)) {
+                        tBadge.style.display = 'inline-block';
+                    }
+                })
+                .catch(err => {
+                    rendered.textContent = 'Error: ' + err.message;
+                    raw.textContent = 'Error: ' + err.message;
                 });
         }
     </script>
 
 </body>
+
+</html>
 
 </html>

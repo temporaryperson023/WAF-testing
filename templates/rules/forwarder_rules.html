@@ -1,84 +1,236 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Forwarder Rules</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forwarder Rules — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'">
             <div class="nav-brand-dot"></div>
             Rules Lab
         </div>
-    </div>
+        <div class="rules-nav">
+            <a href="/rules/error" class="nav-link">Error</a>
+            <a href="/rules/header" class="nav-link">Header</a>
+            <a href="/rules/redirect" class="nav-link">Redirect</a>
+            <a href="/rules/variable" class="nav-link">Variable</a>
+            <a href="/rules/transform" class="nav-link">Transform</a>
+            <a href="/rules/forwarder" class="nav-link active">Forwarder</a>
+            <a href="/rules/capture" class="nav-link">Capture</a>
+            <a href="/rules/upstream" class="nav-link">Upstream</a>
+        </div>
+    </nav>
 
-    <div class="test-page">
+    <main class="page">
+
+        <div class="page-header">
+            <a href="/rules/" class="back-link">← Back to Rules Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-owasp">Rule Type — Forwarder Rule</span>
+            </div>
+            <h1 class="page-title">Forwarder Rules</h1>
+            <p class="page-desc">
+                Send a request to the primary backend and verify the WAF silently
+                forwards it to a secondary backend instead. The <code>backend</code>
+                field in the response reveals which server actually handled the request.
+            </p>
+        </div>
 
         <!-- LEFT -->
-        <div class="col">
+        <div class="col-left">
 
-            <div class="panel">
-                <div class="panel-header">Trigger Request</div>
-                <div class="panel-body">
-
-                    <button class="btn btn-primary" onclick="hitEndpoint()">
-                        Send Request
+            <div class="trigger-panel">
+                <div class="trigger-panel-header">Trigger Request</div>
+                <div class="trigger-panel-body">
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/forwarder/test</span>
+                    </div>
+                    <button class="btn-trigger" onclick="hitEndpoint()">
+                        ↗ &nbsp;Send Request
                     </button>
-
+                    <p class="trigger-hint">
+                        Without a rule the response shows <code>backend: primary</code>.
+                        With the Forwarder Rule active it should show <code>backend: secondary</code>.
+                    </p>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">Response</div>
-                <div class="panel-body">
-                    <pre id="resultBox">No request yet</pre>
+            <div class="output-box">
+                <div class="output-box-bar">
+                    <span class="output-box-label">Response</span>
+                    <span class="output-box-status" id="backendBadge" style="display:none;"></span>
                 </div>
+                <div class="output-box-body">
+                    <pre class="output-pre-empty" id="resultBox">No request sent yet</pre>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>How to verify —</strong> Check the <code>backend</code> field
+                in the JSON response. <code>"primary"</code> means the WAF rule is not
+                active. <code>"secondary"</code> confirms the Forwarder Rule forwarded
+                the request to <code>/rules/forwarder/alt</code> successfully.
             </div>
 
         </div>
 
         <!-- RIGHT -->
-        <div class="col">
+        <div class="col-right">
+
+            <div class="waf-guide">
+                <div class="waf-guide-header">
+                    <span class="waf-guide-title">WAF Config Guide</span>
+                    <span class="waf-box-badge">Forwarder Rule</span>
+                </div>
+                <div class="waf-guide-body">
+
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Rule Type</span>
+                        <span class="waf-guide-row-value">Forwarder Rule</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Match Path</span>
+                        <span class="waf-guide-row-value">
+                            <code style="font-family:var(--font-mono);font-size:0.85em;">/rules/forwarder/test</code>
+                        </span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Forward To</span>
+                        <span class="waf-guide-row-value">
+                            <code style="font-family:var(--font-mono);font-size:0.85em;">/rules/forwarder/alt</code>
+                        </span>
+                    </div>
+
+                    <div class="waf-guide-divider"></div>
+
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Expected Behavior</span>
+                        <div style="margin-top:0.35rem;">
+                            <div class="compare-row">
+                                <div class="compare-cell without">
+                                    <span class="compare-cell-label">Without WAF</span>
+                                    <span class="compare-cell-value">backend: primary</span>
+                                </div>
+                                <div class="compare-cell with">
+                                    <span class="compare-cell-label">With WAF</span>
+                                    <span class="compare-cell-value">backend: secondary</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="waf-guide-divider"></div>
+
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Steps</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Match on path: <code>/rules/forwarder/test</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Set forward destination to <code>/rules/forwarder/alt</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Send request — check <code>backend</code> field in response
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flow">
+                <div class="flow-step">
+                    <span class="flow-step-num">01</span>
+                    <div>
+                        <div class="flow-step-title">Request sent to <code>/rules/forwarder/test</code></div>
+                        <div class="flow-step-desc">Normally handled by the primary backend</div>
+                    </div>
+                </div>
+                <div class="flow-step blocked">
+                    <span class="flow-step-num">02</span>
+                    <div>
+                        <div class="flow-step-title">WAF intercepts and forwards</div>
+                        <div class="flow-step-desc">Forwarder Rule silently routes to <code>/rules/forwarder/alt</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <span class="flow-step-num">03</span>
+                    <div>
+                        <div class="flow-step-title">Secondary backend responds</div>
+                        <div class="flow-step-desc">Response contains <code>backend: secondary</code></div>
+                    </div>
+                </div>
+            </div>
 
             <div class="panel">
-                <div class="panel-header">⚙️ WAF Config Guide</div>
-                <div class="panel-body">
+                <div class="panel-header">Backend Endpoints</div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:0.6rem;">
 
-                    <p><b>Rule Type:</b> Forwarder Rule</p>
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/forwarder/test</span>
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--text-3);font-family:var(--font-mono);">
+                        → Primary backend · returns <code>backend: primary</code>
+                    </p>
 
-                    <br>
-
-                    <p><b>Try:</b></p>
-                    <ul>
-                        <li>Forward /forwarder/test → /forwarder/alt</li>
-                    </ul>
-
-                    <br>
-
-                    <p><b>Expected:</b></p>
-                    <ul>
-                        <li>Without WAF → primary backend</li>
-                        <li>With WAF → secondary backend</li>
-                    </ul>
+                    <div class="trigger-endpoint" style="border-color:var(--green-border);background:var(--green-bg);">
+                        <span class="trigger-method"
+                            style="background:var(--green-bg);color:var(--green);border-color:var(--green-border);">GET</span>
+                        <span class="trigger-url-text">/rules/forwarder/alt</span>
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--text-3);font-family:var(--font-mono);">
+                        → Secondary backend · returns <code>backend: secondary</code>
+                    </p>
 
                 </div>
             </div>
 
         </div>
 
-    </div>
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — Forwarder Rules</span>
+        <span class="footer-right">WAF Validation Mode</span>
+    </footer>
 
     <script>
         function hitEndpoint() {
+            const box = document.getElementById('resultBox');
+            const badge = document.getElementById('backendBadge');
+
+            box.className = 'output-pre';
+            box.textContent = 'Fetching…';
+            badge.style.display = 'none';
+
             fetch('/rules/forwarder/test')
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('resultBox').innerText =
-                        JSON.stringify(data, null, 2);
-                });
+                    box.textContent = JSON.stringify(data, null, 2);
+
+                    const isSecondary = data.backend === 'secondary';
+                    badge.textContent = isSecondary ? '✓ Forwarded → secondary' : '✗ primary (rule not active)';
+                    badge.className = 'output-box-status ' + (isSecondary ? 'badge-green' : 'badge-red');
+                    badge.style.display = 'inline-block';
+                })
+                .catch(err => { box.textContent = 'Error: ' + err.message; });
         }
     </script>
 

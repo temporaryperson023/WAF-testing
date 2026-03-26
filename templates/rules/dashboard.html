@@ -1,82 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Rules Lab</title>
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rules Test Lab — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/'" style="cursor:pointer;">
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/'">
             <div class="nav-brand-dot"></div>
             WAF Test Lab
         </div>
-
-        <div class="nav-version">LAB 02</div>
-    </div>
+        <span class="nav-version">LAB 02</span>
+    </nav>
 
     <div class="home-main">
 
         <div class="home-hero">
+            <div class="home-label">
+                <span class="home-label-dot"></span>
+                WAF Rule Validation
+            </div>
             <h1 class="home-title">Rules Test Lab</h1>
             <p class="home-desc">
-                Verify WAF rule behavior and transformations
+                Verify WAF rule behavior — test header injection, redirects, transforms,
+                variable modification, forwarding, and more.
             </p>
         </div>
 
         <div class="lab-cards">
 
-            <div class="lab-card" onclick="location.href='/rules/error'">
-                <div class="lab-card-title">❌ Error Rules</div>
-                <div class="lab-card-desc">Modify error responses</div>
-            </div>
+            <a href="/rules/error" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">01</span>
+                </div>
+                <div class="lab-card-title">Error Rules</div>
+                <div class="lab-card-desc">Trigger a 404 endpoint and verify the WAF replaces the raw JSON error with a
+                    custom response.</div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/rules/error</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
 
-            <div class="lab-card" onclick="location.href='/rules/header'">
-                <div class="lab-card-title">📦 Header Rules</div>
-                <div class="lab-card-desc">Add/modify headers</div>
-            </div>
+            <a href="/rules/header" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">02</span>
+                </div>
+                <div class="lab-card-title">Header Rules</div>
+                <div class="lab-card-desc">Inspect request and response headers — verify the WAF injects or strips
+                    custom headers.</div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/rules/header</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
 
-            <div class="lab-card" onclick="location.href='/rules/redirect'">
-                <div class="lab-card-title">🔀 Redirect Rules</div>
-                <div class="lab-card-desc">Test redirections</div>
-            </div>
+            <a href="/rules/redirect" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">03</span>
+                </div>
+                <div class="lab-card-title">Redirect Rules</div>
+                <div class="lab-card-desc">Send a request and verify the WAF intercepts and issues a 302 redirect to the
+                    target URL.</div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/rules/redirect</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
 
-            <div class="lab-card" onclick="location.href='/rules/variable'">
-                <div class="lab-card-title">🔤 Variable Rules</div>
-                <div class="lab-card-desc">Modify variables</div>
-            </div>
+            <a href="/rules/variable" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">04</span>
+                </div>
+                <div class="lab-card-title">Variable Rules</div>
+                <div class="lab-card-desc">Pass query params and verify the WAF modifies variable values before they
+                    reach the backend.</div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/rules/variable</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
 
-            <div class="lab-card" onclick="location.href='/rules/transform'">
-                <div class="lab-card-title">🔁 Transform Rules</div>
-                <div class="lab-card-desc">Rewrite responses</div>
-            </div>
+            <a href="/rules/transform" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">05</span>
+                </div>
+                <div class="lab-card-title">Transform Rules</div>
+                <div class="lab-card-desc">Fetch backend HTML and verify the WAF rewrites or injects content into the
+                    response body.</div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/rules/transform</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
 
-            <div class="lab-card" onclick="location.href='/rules/forwarder'">
-                <div class="lab-card-title">📡 Forwarder Rules</div>
-                <div class="lab-card-desc">Forward requests</div>
-            </div>
+            <a href="/rules/forwarder" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">06</span>
+                </div>
+                <div class="lab-card-title">Forwarder Rules</div>
+                <div class="lab-card-desc">Hit the primary backend and verify the WAF forwards the request to a
+                    secondary backend instead.</div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/rules/forwarder</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
 
-            <div class="lab-card" onclick="location.href='/rules/capture'">
-                <div class="lab-card-title">📸 Capture Rules</div>
-                <div class="lab-card-desc">Capture request data</div>
-            </div>
+            <a href="/rules/capture" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">07</span>
+                </div>
+                <div class="lab-card-title">Capture Rules</div>
+                <div class="lab-card-desc">Send a request with params and verify the WAF logs or captures the data
+                    before passing through.</div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/rules/capture</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
 
-            <div class="lab-card" onclick="location.href='/rules/upstream'">
-                <div class="lab-card-title">🌐 Upstream Rules</div>
-                <div class="lab-card-desc">Modify backend routing</div>
-            </div>
+            <a href="/rules/upstream" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">08</span>
+                </div>
+                <div class="lab-card-title">Upstream Rules</div>
+                <div class="lab-card-desc">Hit the main upstream and verify the WAF reroutes the request to an alternate
+                    upstream server.</div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/rules/upstream</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
 
         </div>
 
     </div>
 
-    <div class="footer">
-        <div>Rules Lab</div>
-        <div>WAF Validation Mode</div>
-    </div>
+    <section class="info-section">
+        <div class="info-bar">
+            <div class="info-bar-marker"></div>
+            <p class="info-bar-text">
+                <strong>How to use —</strong>
+                Each module targets a specific WAF rule type. Configure the rule in your WAF,
+                then use the test buttons to send requests and verify the WAF is applying the
+                rule correctly. Compare the with-WAF and without-WAF responses shown on each page.
+            </p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — Rules Test Lab</span>
+        <span class="footer-right">WAF Validation Mode</span>
+    </footer>
 
 </body>
 

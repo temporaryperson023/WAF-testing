@@ -1,117 +1,274 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Variable Rules</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Variable Rules — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="nav">
-        <div class="nav-brand" onclick="location.href='/rules/'" style="cursor:pointer;">
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/rules/'">
             <div class="nav-brand-dot"></div>
             Rules Lab
         </div>
-    </div>
+        <div class="rules-nav">
+            <a href="/rules/error" class="nav-link">Error</a>
+            <a href="/rules/header" class="nav-link">Header</a>
+            <a href="/rules/redirect" class="nav-link">Redirect</a>
+            <a href="/rules/variable" class="nav-link active">Variable</a>
+            <a href="/rules/transform" class="nav-link">Transform</a>
+            <a href="/rules/forwarder" class="nav-link">Forwarder</a>
+            <a href="/rules/capture" class="nav-link">Capture</a>
+            <a href="/rules/upstream" class="nav-link">Upstream</a>
+        </div>
+    </nav>
 
-    <div class="test-page">
+    <main class="page">
+
+        <div class="page-header">
+            <a href="/rules/" class="back-link">← Back to Rules Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-owasp">Rule Type — Variable Rule</span>
+            </div>
+            <h1 class="page-title">Variable Rules</h1>
+            <p class="page-desc">
+                Send query parameters <code>user</code> and <code>role</code> to the backend
+                and verify the WAF modifies their values before they arrive. Without a rule
+                the backend echoes back exactly what you sent.
+            </p>
+        </div>
 
         <!-- LEFT -->
-        <div class="col">
+        <div class="col-left">
 
-            <div class="panel">
-                <div class="panel-header">Send Request</div>
-                <div class="panel-body">
-
-                    <input id="user" class="input" placeholder="user"><br><br>
-                    <input id="role" class="input" placeholder="role"><br><br>
-
-                    <button class="btn btn-primary" onclick="sendRequest()">
-                        Send
+            <div class="trigger-panel">
+                <div class="trigger-panel-header">Send Request</div>
+                <div class="trigger-panel-body">
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/variable/test?user=&amp;role=</span>
+                    </div>
+                    <div class="var-input-grid">
+                        <div class="field">
+                            <label class="field-label" for="user">user</label>
+                            <input class="field-input" type="text" id="user" placeholder="e.g. kartik"
+                                autocomplete="off" />
+                        </div>
+                        <div class="field">
+                            <label class="field-label" for="role">role</label>
+                            <input class="field-input" type="text" id="role" placeholder="e.g. user"
+                                autocomplete="off" />
+                        </div>
+                    </div>
+                    <button class="btn-trigger" onclick="sendRequest()">
+                        ↗ &nbsp;Send Request
                     </button>
-
+                    <p class="trigger-hint">
+                        Values are sent as query params. If the WAF Variable Rule is active,
+                        the backend will receive modified values — not what you typed.
+                    </p>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">Response</div>
-                <div class="panel-body">
-                    <pre id="resultBox">No request yet</pre>
+            <div class="output-box">
+                <div class="output-box-bar">
+                    <span class="output-box-label">Backend Received</span>
+                    <span class="output-box-status badge-green" id="statusBadge" style="display:none;"></span>
                 </div>
+                <div class="output-box-body">
+                    <pre class="output-pre-empty" id="resultBox">No request sent yet</pre>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>What to look for —</strong> If the WAF Variable Rule is active,
+                the <code>received_user</code> or <code>received_role</code> values in
+                the response will differ from what you entered in the fields above.
             </div>
 
         </div>
 
         <!-- RIGHT -->
-        <div class="col">
+        <div class="col-right">
 
-            <div class="panel">
-                <div class="panel-header">🔥 Payloads</div>
-                <div class="panel-body">
+            <div class="waf-guide">
+                <div class="waf-guide-header">
+                    <span class="waf-guide-title">WAF Config Guide</span>
+                    <span class="waf-box-badge">Variable Rule</span>
+                </div>
+                <div class="waf-guide-body">
 
-                    <div class="payload" onclick="fill('kartik','user')">
-                        Normal user
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Rule Type</span>
+                        <span class="waf-guide-row-value">Variable Rule</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Target Params</span>
+                        <span class="waf-guide-row-value"><code
+                                style="font-family:var(--font-mono);font-size:0.85em;">user</code> &nbsp;and&nbsp; <code
+                                style="font-family:var(--font-mono);font-size:0.85em;">role</code></span>
                     </div>
 
-                    <div class="payload" onclick="fill('guest','guest')">
-                        Guest access
+                    <div class="waf-guide-divider"></div>
+
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Try Modifying</span>
+                        <div class="waf-guide-list" style="margin-top:0.35rem;">
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Rewrite <code>user</code> → <code>admin</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Rewrite <code>role</code> → <code>admin</code>
+                            </div>
+                            <div class="waf-guide-item">
+                                <span class="waf-guide-item-dot"></span>
+                                Strip or blank out the <code>role</code> param entirely
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="payload" onclick="fill('test','admin')">
-                        Try admin role
+                    <div class="waf-guide-divider"></div>
+
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Expected Behavior</span>
+                        <div style="margin-top:0.35rem;">
+                            <div class="compare-row">
+                                <div class="compare-cell without">
+                                    <span class="compare-cell-label">Without WAF</span>
+                                    <span class="compare-cell-value">Backend echoes sent values</span>
+                                </div>
+                                <div class="compare-cell with">
+                                    <span class="compare-cell-label">With WAF</span>
+                                    <span class="compare-cell-value">Backend receives modified values</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
             </div>
 
             <div class="panel">
-                <div class="panel-header">⚙️ WAF Config Guide</div>
+                <div class="panel-header">Quick Fill</div>
                 <div class="panel-body">
+                    <div class="quickfill-list">
 
-                    <p><b>Rule Type:</b> Variable Rule</p>
+                        <div class="quickfill-item">
+                            <div class="quickfill-info">
+                                <span class="quickfill-name">Normal user</span>
+                                <span class="quickfill-values">user=kartik &nbsp;·&nbsp; role=user</span>
+                            </div>
+                            <button class="quickfill-btn" onclick="fill('kartik','user',this)">Use</button>
+                        </div>
 
-                    <br>
+                        <div class="quickfill-item">
+                            <div class="quickfill-info">
+                                <span class="quickfill-name">Guest access</span>
+                                <span class="quickfill-values">user=guest &nbsp;·&nbsp; role=guest</span>
+                            </div>
+                            <button class="quickfill-btn" onclick="fill('guest','guest',this)">Use</button>
+                        </div>
 
-                    <p><b>Try:</b></p>
-                    <ul>
-                        <li>Modify user → admin</li>
-                        <li>Modify role → admin</li>
-                    </ul>
+                        <div class="quickfill-item">
+                            <div class="quickfill-info">
+                                <span class="quickfill-name">Try admin role</span>
+                                <span class="quickfill-values">user=test &nbsp;·&nbsp; role=admin</span>
+                            </div>
+                            <button class="quickfill-btn" onclick="fill('test','admin',this)">Use</button>
+                        </div>
 
-                    <br>
+                    </div>
+                </div>
+            </div>
 
-                    <p><b>Expected:</b></p>
-                    <ul>
-                        <li>Without WAF → Same values</li>
-                        <li>With WAF → Modified values</li>
-                    </ul>
-
+            <div class="flow">
+                <div class="flow-step">
+                    <span class="flow-step-num">01</span>
+                    <div>
+                        <div class="flow-step-title">Request sent with <code>user</code> &amp; <code>role</code></div>
+                        <div class="flow-step-desc">Query params passed to <code>/rules/variable/test</code></div>
+                    </div>
+                </div>
+                <div class="flow-step blocked">
+                    <span class="flow-step-num">02</span>
+                    <div>
+                        <div class="flow-step-title">WAF intercepts and rewrites params</div>
+                        <div class="flow-step-desc">Variable Rule modifies values before forwarding</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <span class="flow-step-num">03</span>
+                    <div>
+                        <div class="flow-step-title">Backend echoes what it received</div>
+                        <div class="flow-step-desc">Compare sent vs received values to confirm rule fired</div>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-    </div>
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — Variable Rules</span>
+        <span class="footer-right">WAF Validation Mode</span>
+    </footer>
 
     <script>
-        function fill(u, r) {
+        function fill(u, r, btn) {
             document.getElementById('user').value = u;
             document.getElementById('role').value = r;
+            const orig = btn.textContent;
+            btn.textContent = '✓';
+            btn.classList.add('used');
+            setTimeout(() => { btn.textContent = orig; btn.classList.remove('used'); }, 1500);
         }
 
         function sendRequest() {
             const user = document.getElementById('user').value;
             const role = document.getElementById('role').value;
+            const box = document.getElementById('resultBox');
+            const badge = document.getElementById('statusBadge');
+
+            box.className = 'output-pre';
+            box.textContent = 'Fetching…';
+            badge.style.display = 'none';
 
             const url = `/rules/variable/test?user=${encodeURIComponent(user)}&role=${encodeURIComponent(role)}`;
 
             fetch(url)
-                .then(res => res.json())
+                .then(res => {
+                    badge.textContent = 'HTTP ' + res.status;
+                    badge.style.display = 'inline-block';
+                    return res.json();
+                })
                 .then(data => {
-                    document.getElementById('resultBox').innerText =
-                        JSON.stringify(data, null, 2);
-                });
+                    const sentUser = user || '(empty)';
+                    const sentRole = role || '(empty)';
+                    const recvUser = data.received_user || '(empty)';
+                    const recvRole = data.received_role || '(empty)';
+
+                    const changed =
+                        recvUser !== sentUser || recvRole !== sentRole;
+
+                    box.textContent =
+                        'Sent     → user: ' + sentUser + '  |  role: ' + sentRole + '\n' +
+                        'Received → user: ' + recvUser + '  |  role: ' + recvRole + '\n\n' +
+                        (changed
+                            ? '✓ Values were modified — WAF Variable Rule is active.'
+                            : '✗ Values unchanged — WAF rule not active yet.');
+                })
+                .catch(err => { box.textContent = 'Error: ' + err.message; });
         }
     </script>
 
