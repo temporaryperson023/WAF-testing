@@ -56,11 +56,17 @@
                         <span class="trigger-method">GET</span>
                         <span class="trigger-url-text">/rules/redirect/test</span>
                     </div>
-                    <a href="/rules/redirect/test">
+                    <div>
                         <button class="btn-trigger" onclick="hitEndpoint()">
                             ↗ &nbsp;Send Request
                         </button>
-                    </a>
+                        <a href="/rules/redirect/test">
+                            <button class="btn-trigger" onclick="">
+                                ↗ &nbsp;Go to Redirected Page
+                            </button>
+                        </a>
+                    </div>
+
 
                     <p class="trigger-hint">
                         Uses <code>redirect: "manual"</code> so the browser doesn't follow

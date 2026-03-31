@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Capture Rules — WAF Test Lab</title>
+    <title>Upstream Rules — WAF Test Lab</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
@@ -26,8 +26,8 @@
             <a href="/rules/variable" class="nav-link">Variable</a>
             <a href="/rules/transform" class="nav-link">Transform</a>
             <a href="/rules/forwarder" class="nav-link">Forwarder</a>
-            <a href="/rules/capture" class="nav-link active">Capture</a>
-            <a href="/rules/upstream" class="nav-link">Upstream</a>
+            <a href="/rules/capture" class="nav-link">Capture</a>
+            <a href="/rules/upstream" class="nav-link active">Upstream</a>
         </div>
     </nav>
 
@@ -36,13 +36,13 @@
         <div class="page-header">
             <a href="/rules/" class="back-link">← Back to Rules Dashboard</a>
             <div class="header-meta">
-                <span class="tag tag-owasp">Rule Type — Capture Rule</span>
+                <span class="tag tag-owasp">Rule Type — Upstream Rule</span>
             </div>
-            <h1 class="page-title">Capture Rules</h1>
+            <h1 class="page-title">Upstream Rules</h1>
             <p class="page-desc">
-                Send a request with a <code>user</code> parameter and verify the WAF
-                captures or logs the data before passing the request through to the backend.
-                The response itself passes normally — capture is a logging-only action.
+                Send a request to the main upstream and verify the WAF reroutes it to
+                an alternate upstream server. The <code>upstream</code> field in the
+                response reveals which server actually handled the request.
             </p>
         </div>
 
@@ -50,31 +50,26 @@
         <div class="col-left">
 
             <div class="trigger-panel">
-                <div class="trigger-panel-header">Send Request</div>
+                <div class="trigger-panel-header">Trigger Request</div>
                 <div class="trigger-panel-body">
                     <div class="trigger-endpoint">
                         <span class="trigger-method">GET</span>
-                        <span class="trigger-url-text">/rules/capture/test?user=</span>
+                        <span class="trigger-url-text">/rules/upstream/test</span>
                     </div>
-                    <div class="field">
-                        <label class="field-label" for="user">user param</label>
-                        <input class="field-input" type="text" id="user" placeholder="e.g. kartik" autocomplete="off" />
-                    </div>
-                    <button class="btn-trigger" onclick="sendRequest()">
+                    <button class="btn-trigger" onclick="hitEndpoint()">
                         ↗ &nbsp;Send Request
                     </button>
                     <p class="trigger-hint">
-                        The backend echoes back the <code>user</code> param and
-                        <code>User-Agent</code> header. The WAF should capture these
-                        values in its logs without modifying the response.
+                        Without a rule the response shows <code>upstream: main-server</code>.
+                        With the Upstream Rule active it should show <code>upstream: alternate-server</code>.
                     </p>
                 </div>
             </div>
 
             <div class="output-box">
                 <div class="output-box-bar">
-                    <span class="output-box-label">Backend Response</span>
-                    <span class="output-box-status badge-green" id="statusBadge" style="display:none;"></span>
+                    <span class="output-box-label">Response</span>
+                    <span class="output-box-status" id="upstreamBadge" style="display:none;"></span>
                 </div>
                 <div class="output-box-body">
                     <pre class="output-pre-empty" id="resultBox">No request sent yet</pre>
@@ -82,10 +77,11 @@
             </div>
 
             <div class="note-box">
-                <strong>How to verify —</strong> Unlike other rules, Capture Rules don't
-                change the response. Verification is done by checking your WAF's
-                log dashboard — the captured <code>user</code> and <code>User-Agent</code>
-                values should appear there after each request.
+                <strong>Upstream vs Forwarder —</strong> A Forwarder Rule redirects
+                at the path level within the same app. An Upstream Rule operates at
+                the backend server level — routing traffic to a completely different
+                upstream host or pool. Check the <code>upstream</code> field to confirm
+                which server responded.
             </div>
 
         </div>
@@ -96,43 +92,25 @@
             <div class="waf-guide">
                 <div class="waf-guide-header">
                     <span class="waf-guide-title">WAF Config Guide</span>
-                    <span class="waf-box-badge">Capture Rule</span>
+                    <span class="waf-box-badge">Upstream Rule</span>
                 </div>
                 <div class="waf-guide-body">
 
                     <div class="waf-guide-row">
                         <span class="waf-guide-row-label">Rule Type</span>
-                        <span class="waf-guide-row-value">Capture Rule</span>
+                        <span class="waf-guide-row-value">Upstream Rule</span>
                     </div>
                     <div class="waf-guide-row">
                         <span class="waf-guide-row-label">Match Path</span>
                         <span class="waf-guide-row-value">
-                            <code style="font-family:var(--font-mono);font-size:0.85em;">/rules/capture/test</code>
+                            <code style="font-family:var(--font-mono);font-size:0.85em;">/rules/upstream/test</code>
                         </span>
                     </div>
                     <div class="waf-guide-row">
-                        <span class="waf-guide-row-label">Action</span>
-                        <span class="waf-guide-row-value">Log / Capture request data</span>
-                    </div>
-
-                    <div class="waf-guide-divider"></div>
-
-                    <div class="waf-guide-row">
-                        <span class="waf-guide-row-label">Try Capturing</span>
-                        <div class="waf-guide-list" style="margin-top:0.35rem;">
-                            <div class="waf-guide-item">
-                                <span class="waf-guide-item-dot"></span>
-                                Query param: <code>user</code>
-                            </div>
-                            <div class="waf-guide-item">
-                                <span class="waf-guide-item-dot"></span>
-                                Header: <code>User-Agent</code>
-                            </div>
-                            <div class="waf-guide-item">
-                                <span class="waf-guide-item-dot"></span>
-                                Source IP of the request
-                            </div>
-                        </div>
+                        <span class="waf-guide-row-label">Route To</span>
+                        <span class="waf-guide-row-value">
+                            <code style="font-family:var(--font-mono);font-size:0.85em;">/rules/upstream/alt</code>
+                        </span>
                     </div>
 
                     <div class="waf-guide-divider"></div>
@@ -143,11 +121,11 @@
                             <div class="compare-row">
                                 <div class="compare-cell without">
                                     <span class="compare-cell-label">Without WAF</span>
-                                    <span class="compare-cell-value">Response only — no logging</span>
+                                    <span class="compare-cell-value">upstream: main-server</span>
                                 </div>
                                 <div class="compare-cell with">
                                     <span class="compare-cell-label">With WAF</span>
-                                    <span class="compare-cell-value">Data logged in WAF dashboard</span>
+                                    <span class="compare-cell-value">upstream: alternate-server</span>
                                 </div>
                             </div>
                         </div>
@@ -160,15 +138,15 @@
                         <div class="waf-guide-list" style="margin-top:0.35rem;">
                             <div class="waf-guide-item">
                                 <span class="waf-guide-item-dot"></span>
-                                Match on path: <code>/rules/capture/test</code>
+                                Match on path: <code>/rules/upstream/test</code>
                             </div>
                             <div class="waf-guide-item">
                                 <span class="waf-guide-item-dot"></span>
-                                Set fields to capture: <code>user</code>, <code>User-Agent</code>
+                                Set alternate upstream to <code>/rules/upstream/alt</code>
                             </div>
                             <div class="waf-guide-item">
                                 <span class="waf-guide-item-dot"></span>
-                                Send a request, then check WAF logs for captured data
+                                Send request — check <code>upstream</code> field in response
                             </div>
                         </div>
                     </div>
@@ -180,24 +158,47 @@
                 <div class="flow-step">
                     <span class="flow-step-num">01</span>
                     <div>
-                        <div class="flow-step-title">Request sent with <code>user</code> param</div>
-                        <div class="flow-step-desc">Also includes <code>User-Agent</code> header automatically</div>
+                        <div class="flow-step-title">Request sent to <code>/rules/upstream/test</code></div>
+                        <div class="flow-step-desc">Normally handled by the main upstream server</div>
                     </div>
                 </div>
                 <div class="flow-step blocked">
                     <span class="flow-step-num">02</span>
                     <div>
-                        <div class="flow-step-title">WAF captures configured fields</div>
-                        <div class="flow-step-desc">Logs <code>user</code> and <code>User-Agent</code> — request passes
-                            through unchanged</div>
+                        <div class="flow-step-title">WAF reroutes to alternate upstream</div>
+                        <div class="flow-step-desc">Upstream Rule switches the backend server at network level</div>
                     </div>
                 </div>
                 <div class="flow-step">
                     <span class="flow-step-num">03</span>
                     <div>
-                        <div class="flow-step-title">Backend receives unmodified request</div>
-                        <div class="flow-step-desc">Response is normal — verify capture via WAF log dashboard</div>
+                        <div class="flow-step-title">Alternate server responds</div>
+                        <div class="flow-step-desc">Response contains <code>upstream: alternate-server</code></div>
                     </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">Upstream Endpoints</div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:0.6rem;">
+
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/rules/upstream/test</span>
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--text-3);font-family:var(--font-mono);">
+                        → Main server · returns <code>upstream: main-server</code>
+                    </p>
+
+                    <div class="trigger-endpoint" style="border-color:var(--green-border);background:var(--green-bg);">
+                        <span class="trigger-method"
+                            style="background:var(--green-bg);color:var(--green);border-color:var(--green-border);">GET</span>
+                        <span class="trigger-url-text">/rules/upstream/alt</span>
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--text-3);font-family:var(--font-mono);">
+                        → Alternate server · returns <code>upstream: alternate-server</code>
+                    </p>
+
                 </div>
             </div>
 
@@ -206,33 +207,28 @@
     </main>
 
     <footer class="footer">
-        <span class="footer-left">WAF Test Lab — Capture Rules</span>
+        <span class="footer-left">WAF Test Lab — Upstream Rules</span>
         <span class="footer-right">WAF Validation Mode</span>
     </footer>
 
     <script>
-        function sendRequest() {
-            const user = document.getElementById('user').value;
+        function hitEndpoint() {
             const box = document.getElementById('resultBox');
-            const badge = document.getElementById('statusBadge');
+            const badge = document.getElementById('upstreamBadge');
 
             box.className = 'output-pre';
             box.textContent = 'Fetching…';
             badge.style.display = 'none';
 
-            const url = `/rules/capture/test?user=${encodeURIComponent(user)}`;
-
-            fetch(url)
-                .then(res => {
-                    badge.textContent = 'HTTP ' + res.status;
-                    badge.style.display = 'inline-block';
-                    return res.json();
-                })
+            fetch('/rules/upstream/test')
+                .then(res => res.json())
                 .then(data => {
-                    box.textContent =
-                        JSON.stringify(data, null, 2) +
-                        '\n\n— Request passed through normally.\n' +
-                        '  Check your WAF log dashboard to confirm capture.';
+                    box.textContent = JSON.stringify(data, null, 2);
+
+                    const isAlt = data.upstream === 'alternate-server';
+                    badge.textContent = isAlt ? '✓ Routed → alternate-server' : '✗ main-server (rule not active)';
+                    badge.className = 'output-box-status ' + (isAlt ? 'badge-green' : 'badge-red');
+                    badge.style.display = 'inline-block';
                 })
                 .catch(err => { box.textContent = 'Error: ' + err.message; });
         }

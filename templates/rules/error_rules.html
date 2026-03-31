@@ -59,9 +59,17 @@
                     <!-- <button class="btn-trigger" onclick="hitEndpoint()">
                         <a style="text-decoration: none; color: white;" href="/notexsist">↗ &nbsp;Send Request</a>
                     </button> -->
-                    <button class="btn-trigger" onclick="hitEndpoint()">
-                        ↗ &nbsp;Send Request
-                    </button>
+                    <div>
+                        <button class="btn-trigger" onclick="hitEndpoint()">
+                            ↗ &nbsp;Send Request
+                        </button>
+                        <a href="/nonexsist">
+                            <button class="btn-trigger" onclick="">
+                                ↗ &nbsp;Send Request (New Tab)
+                            </button>
+                        </a>
+                    </div>
+
                     <p class="trigger-hint">
                         Hits the error endpoint. Without WAF you'll see raw JSON.
                         With an Error Rule active the WAF should replace the response.
