@@ -10,6 +10,85 @@
         href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .code-select-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .code-select-label {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-3);
+        }
+
+        .code-select {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.65rem 1rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            width: 100%;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .code-select:focus {
+            border-color: var(--text);
+            box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.06);
+        }
+
+        .selected-code-preview {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border-soft);
+            border-radius: 7px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
+
+        .selected-code-num {
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+
+        .selected-code-num.is-4xx {
+            color: var(--orange);
+        }
+
+        .selected-code-num.is-5xx {
+            color: var(--red);
+        }
+
+        .selected-code-msg {
+            color: var(--text-2);
+        }
+
+        .selected-code-range {
+            margin-left: auto;
+            font-size: 0.7rem;
+            color: var(--text-3);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.15em 0.5em;
+        }
+    </style>
 </head>
 
 <body>
@@ -40,9 +119,9 @@
             </div>
             <h1 class="page-title">Error Rules</h1>
             <p class="page-desc">
-                This endpoint returns a raw <code>404 JSON</code> error response from the backend.
-                Configure an Error Rule in your WAF to intercept this status code and replace
-                the response with a custom error page or message.
+                Select any HTTP error code and fire a request. The backend returns a raw JSON error
+                with that exact status code. Configure an Error Rule in your WAF to intercept
+                the response and replace it with a custom error page.
             </p>
         </div>
 
@@ -52,23 +131,102 @@
             <div class="trigger-panel">
                 <div class="trigger-panel-header">Trigger Request</div>
                 <div class="trigger-panel-body">
+
+                    <!-- Error Code Selector -->
+                    <div class="code-select-wrap">
+                        <span class="code-select-label">Select Error Code</span>
+                        <select class="code-select" id="errorCodeSelect" onchange="onCodeChange()">
+                            <optgroup label="4xx — Client Errors">
+                                <option value="400">400 — Bad Request</option>
+                                <option value="401">401 — Unauthorized</option>
+                                <option value="402">402 — Payment Required</option>
+                                <option value="403">403 — Forbidden</option>
+                                <option value="404" selected>404 — Not Found</option>
+                                <option value="405">405 — Method Not Allowed</option>
+                                <option value="406">406 — Not Acceptable</option>
+                                <option value="407">407 — Proxy Authentication Required</option>
+                                <option value="408">408 — Request Timeout</option>
+                                <option value="409">409 — Conflict</option>
+                                <option value="410">410 — Gone</option>
+                                <option value="411">411 — Length Required</option>
+                                <option value="412">412 — Precondition Failed</option>
+                                <option value="413">413 — Content Too Large</option>
+                                <option value="414">414 — URI Too Long</option>
+                                <option value="415">415 — Unsupported Media Type</option>
+                                <option value="416">416 — Range Not Satisfiable</option>
+                                <option value="417">417 — Expectation Failed</option>
+                                <option value="418">418 — I'm a Teapot</option>
+                                <option value="421">421 — Misdirected Request</option>
+                                <option value="422">422 — Unprocessable Content</option>
+                                <option value="423">423 — Locked</option>
+                                <option value="424">424 — Failed Dependency</option>
+                                <option value="425">425 — Too Early</option>
+                                <option value="426">426 — Upgrade Required</option>
+                                <option value="428">428 — Precondition Required</option>
+                                <option value="429">429 — Too Many Requests</option>
+                                <option value="431">431 — Request Header Fields Too Large</option>
+                                <option value="450">450 — Blocked by Windows Parental Controls</option>
+                                <option value="451">451 — Unavailable For Legal Reasons</option>
+                                <option value="495">495 — SSL Certificate Error</option>
+                                <option value="496">496 — SSL Certificate Required</option>
+                                <option value="497">497 — HTTP Request Sent to HTTPS Port</option>
+                                <option value="498">498 — Invalid Token</option>
+                                <option value="499">499 — Client Closed Request</option>
+                            </optgroup>
+                            <optgroup label="5xx — Server Errors">
+                                <option value="500">500 — Internal Server Error</option>
+                                <option value="501">501 — Not Implemented</option>
+                                <option value="502">502 — Bad Gateway</option>
+                                <option value="503">503 — Service Unavailable</option>
+                                <option value="504">504 — Gateway Timeout</option>
+                                <option value="505">505 — HTTP Version Not Supported</option>
+                                <option value="506">506 — Variant Also Negotiates</option>
+                                <option value="507">507 — Insufficient Storage</option>
+                                <option value="508">508 — Loop Detected</option>
+                                <option value="510">510 — Not Extended</option>
+                                <option value="511">511 — Network Authentication Required</option>
+                                <option value="520">520 — Web Server Unknown Error</option>
+                                <option value="521">521 — Web Server Is Down</option>
+                                <option value="522">522 — Connection Timed Out</option>
+                                <option value="523">523 — Origin Is Unreachable</option>
+                                <option value="524">524 — A Timeout Occurred</option>
+                                <option value="525">525 — SSL Handshake Failed</option>
+                                <option value="526">526 — Invalid SSL Certificate</option>
+                                <option value="527">527 — Railgun Listener Error</option>
+                                <option value="528">528 — Site Is Overloaded</option>
+                                <option value="529">529 — Site Is About To Be Throttled</option>
+                                <option value="530">530 — Origin DNS Error</option>
+                            </optgroup>
+                        </select>
+
+                        <!-- Live preview -->
+                        <div class="selected-code-preview">
+                            <span class="selected-code-num is-4xx" id="previewCode">404</span>
+                            <span class="selected-code-msg" id="previewMsg">Not Found</span>
+                            <span class="selected-code-range" id="previewRange">4xx Client Error</span>
+                        </div>
+                    </div>
+
+                    <!-- Endpoint display -->
                     <div class="trigger-endpoint">
                         <span class="trigger-method">GET</span>
-                        <span class="trigger-url-text">/rules/error/test</span>
+                        <span class="trigger-url-text" id="endpointDisplay">/rules/error/test?code=404</span>
                     </div>
-                    <div>
+
+                    <!-- Buttons -->
+                    <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
                         <button class="btn-trigger" onclick="hitEndpoint()">
                             ↗ &nbsp;Send Request
                         </button>
-                        <a href="/nonexsist">
-                            <button class="btn-trigger" onclick="">
-                                ↗ &nbsp;Send Request (New Tab)
-                            </button>
-                        </a>
+                        <button class="btn-trigger"
+                            style="background:var(--surface); color:var(--text); border:1px solid var(--border);"
+                            onclick="openInTab()">
+                            ↗ &nbsp;Open in Tab
+                        </button>
                     </div>
 
                     <p class="trigger-hint">
-                        Hits the error endpoint. Without WAF you'll see raw JSON.
+                        Hits the endpoint with the selected code. Without WAF you'll see raw JSON.
                         With an Error Rule active the WAF should replace the response.
                     </p>
                 </div>
@@ -85,9 +243,9 @@
             </div>
 
             <div class="note-box">
-                <strong>Endpoint behaviour —</strong> <code>/rules/error/test</code> always
-                returns HTTP <code>404</code> with a JSON body. The raw backend never serves
-                HTML — if you see HTML after sending, your WAF Error Rule is working correctly.
+                <strong>Endpoint behaviour —</strong> <code>/rules/error/test?code=<span id="noteCode">404</span></code>
+                always returns the selected HTTP status code with a JSON body. If you see HTML after sending,
+                your WAF Error Rule is intercepting and replacing the response correctly.
             </div>
 
         </div>
@@ -108,7 +266,11 @@
                     </div>
                     <div class="waf-guide-row">
                         <span class="waf-guide-row-label">Trigger Status Code</span>
-                        <span class="waf-guide-row-value">404</span>
+                        <span class="waf-guide-row-value" id="guideCode">404</span>
+                    </div>
+                    <div class="waf-guide-row">
+                        <span class="waf-guide-row-label">Match Condition</span>
+                        <span class="waf-guide-row-value"><code id="guideCondition">status == 404</code></span>
                     </div>
                     <div class="waf-guide-row">
                         <span class="waf-guide-row-label">Action</span>
@@ -140,7 +302,7 @@
                         <div class="waf-guide-list" style="margin-top:0.35rem;">
                             <div class="waf-guide-item">
                                 <span class="waf-guide-item-dot"></span>
-                                Set match condition: <code>status == 404</code>
+                                Set match condition: <code id="stepsCondition">status == 404</code>
                             </div>
                             <div class="waf-guide-item">
                                 <span class="waf-guide-item-dot"></span>
@@ -160,14 +322,15 @@
                 <div class="flow-step">
                     <span class="flow-step-num">01</span>
                     <div>
-                        <div class="flow-step-title">Request hits <code>/rules/error/test</code></div>
-                        <div class="flow-step-desc">Backend always responds with HTTP 404 JSON</div>
+                        <div class="flow-step-title">Request hits <code
+                                id="flowEndpoint">/rules/error/test?code=404</code></div>
+                        <div class="flow-step-desc" id="flowDesc">Backend responds with HTTP 404 JSON</div>
                     </div>
                 </div>
                 <div class="flow-step blocked">
                     <span class="flow-step-num">02</span>
                     <div>
-                        <div class="flow-step-title">WAF intercepts the 404 response</div>
+                        <div class="flow-step-title">WAF intercepts the <span id="flowCode">404</span> response</div>
                         <div class="flow-step-desc">Error Rule matches on status code and replaces the body</div>
                     </div>
                 </div>
@@ -190,26 +353,104 @@
     </footer>
 
     <script>
-        function hitEndpoint() {
+        const ERROR_MESSAGES = {
+            400: "Bad Request", 401: "Unauthorized", 402: "Payment Required",
+            403: "Forbidden", 404: "Not Found", 405: "Method Not Allowed",
+            406: "Not Acceptable", 407: "Proxy Authentication Required",
+            408: "Request Timeout", 409: "Conflict", 410: "Gone",
+            411: "Length Required", 412: "Precondition Failed",
+            413: "Content Too Large", 414: "URI Too Long",
+            415: "Unsupported Media Type", 416: "Range Not Satisfiable",
+            417: "Expectation Failed", 418: "I'm a Teapot",
+            421: "Misdirected Request", 422: "Unprocessable Content",
+            423: "Locked", 424: "Failed Dependency", 425: "Too Early",
+            426: "Upgrade Required", 428: "Precondition Required",
+            429: "Too Many Requests", 431: "Request Header Fields Too Large",
+            450: "Blocked by Windows Parental Controls", 451: "Unavailable For Legal Reasons",
+            495: "SSL Certificate Error", 496: "SSL Certificate Required",
+            497: "HTTP Request Sent to HTTPS Port", 498: "Invalid Token",
+            499: "Client Closed Request", 500: "Internal Server Error",
+            501: "Not Implemented", 502: "Bad Gateway", 503: "Service Unavailable",
+            504: "Gateway Timeout", 505: "HTTP Version Not Supported",
+            506: "Variant Also Negotiates", 507: "Insufficient Storage",
+            508: "Loop Detected", 510: "Not Extended",
+            511: "Network Authentication Required", 520: "Web Server Unknown Error",
+            521: "Web Server Is Down", 522: "Connection Timed Out",
+            523: "Origin Is Unreachable", 524: "A Timeout Occurred",
+            525: "SSL Handshake Failed", 526: "Invalid SSL Certificate",
+            527: "Railgun Listener Error", 528: "Site Is Overloaded",
+            529: "Site Is About To Be Throttled", 530: "Origin DNS Error"
+        };
+
+        function getSelectedCode() {
+            return parseInt(document.getElementById('errorCodeSelect').value);
+        }
+
+        function onCodeChange() {
+            const code = getSelectedCode();
+            const msg = ERROR_MESSAGES[code] || 'Unknown';
+            const is4xx = code >= 400 && code < 500;
+            const endpoint = `/rules/error/test?code=${code}`;
+
+            // Preview badge
+            const previewCode = document.getElementById('previewCode');
+            previewCode.textContent = code;
+            previewCode.className = 'selected-code-num ' + (is4xx ? 'is-4xx' : 'is-5xx');
+            document.getElementById('previewMsg').textContent = msg;
+            document.getElementById('previewRange').textContent = is4xx ? '4xx Client Error' : '5xx Server Error';
+
+            // Endpoint display
+            document.getElementById('endpointDisplay').textContent = endpoint;
+
+            // Note box
+            document.getElementById('noteCode').textContent = code;
+
+            // WAF guide right panel
+            document.getElementById('guideCode').textContent = code;
+            document.getElementById('guideCondition').textContent = `status == ${code}`;
+            document.getElementById('stepsCondition').textContent = `status == ${code}`;
+
+            // Flow steps
+            document.getElementById('flowEndpoint').textContent = endpoint;
+            document.getElementById('flowDesc').textContent = `Backend responds with HTTP ${code} JSON`;
+            document.getElementById('flowCode').textContent = code;
+
+            // Reset response box on code change
             const box = document.getElementById('responseBox');
             const badge = document.getElementById('statusBadge');
+            box.className = 'output-pre-empty';
+            box.textContent = 'No request sent yet';
+            badge.style.display = 'none';
+        }
+
+        function hitEndpoint() {
+            const code = getSelectedCode();
+            const box = document.getElementById('responseBox');
+            const badge = document.getElementById('statusBadge');
+
             box.className = 'output-pre';
             box.textContent = 'Fetching…';
             badge.style.display = 'none';
 
-            fetch('/rules/error/test')
+            fetch(`/rules/error/test?code=${code}`)
                 .then(res => {
                     badge.textContent = 'HTTP ' + res.status;
-                    badge.className = 'output-box-status ' + (res.status < 300 ? 'badge-green' : 'badge-red');
+                    badge.className = 'output-box-status badge-red';
                     badge.style.display = 'inline-block';
                     return res.text();
                 })
-                .then(data => { box.textContent = data; })
-                .catch(err => { box.textContent = 'Error: ' + err.message; });
+                .then(data => {
+                    box.textContent = data;
+                })
+                .catch(err => {
+                    box.textContent = 'Error: ' + err.message;
+                });
         }
-        // function hitEndpoint(){
 
-        // }
+        function openInTab() {
+            const code = getSelectedCode();
+            window.open(`/rules/error/test?code=${code}`, '_blank');
+        }
     </script>
 
 </body>
