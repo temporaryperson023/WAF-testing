@@ -71,7 +71,7 @@ def error_test():
     return jsonify({
         "status": code,
         "error": message,
-        "message": f"This is a simulated {code} {message} error response"
+        "message": f"This is a simulated {code} {message} error response, and this is not from the WAF but from the backend server."
     }), code
 
 
