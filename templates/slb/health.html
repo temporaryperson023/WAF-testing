@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Monitor — SLB Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/slb/'" style="cursor:pointer;">
+            <div class="nav-brand-dot blue"></div>
+            SLB Lab
+        </div>
+        <div class="nav-links">
+            <a href="/slb/health" class="nav-link active">Health</a>
+            <a href="/slb/lb-algo" class="nav-link">LB Algorithm</a>
+            <a href="/slb/sticky" class="nav-link">Sticky Sessions</a>
+            <a href="/slb/failover" class="nav-link">Failover</a>
+            <a href="/slb/server-info" class="nav-link">Server Info</a>
+        </div>
+    </nav>
+
+    <!-- PAGE -->
+    <main class="page">
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <a href="/slb/" class="back-link">← Back to SLB Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-slb">SLB Module 01</span>
+                <span class="tag tag-owasp">Haltdos ADC — Health Monitor</span>
+            </div>
+            <h1 class="page-title">Health Monitor</h1>
+            <p class="page-desc">
+                Haltdos SLB probes this endpoint before routing any traffic to this backend.
+                If the probe returns <code>200 OK</code>, the server is marked healthy and
+                receives traffic. If it fails, Haltdos removes it from the active pool
+                until it recovers.
+            </p>
+        </div>
+
+        <!-- LEFT -->
+        <div class="col-left">
+
+            <!-- Live probe trigger -->
+            <div class="panel">
+                <div class="panel-header">Probe Endpoint</div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:1rem;">
+
+                    <div class="trigger-endpoint">
+                        <span class="trigger-method">GET</span>
+                        <span class="trigger-url-text">/slb/health/probe</span>
+                    </div>
+
+                    <p style="font-size:0.86rem;color:var(--text-2);font-weight:300;line-height:1.65;">
+                        This is the URL you configure inside Haltdos as the health check target.
+                        Click below to fire a probe request right now and see the raw response.
+                    </p>
+
+                    <button class="btn btn-primary" id="btnProbe">Fire Health Probe</button>
+
+                </div>
+            </div>
+
+            <!-- How to configure in Haltdos -->
+            <div class="panel">
+                <div class="panel-header">Haltdos Configuration</div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:1rem;">
+
+                    <div class="flow">
+                        <div class="flow-step">
+                            <span class="flow-step-num">01</span>
+                            <div>
+                                <div class="flow-step-title">Open Haltdos Console</div>
+                                <div class="flow-step-desc">
+                                    Go to <code>ADC → Listeners → Your Listener → Server Groups</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">02</span>
+                            <div>
+                                <div class="flow-step-title">Add a Health Monitor</div>
+                                <div class="flow-step-desc">
+                                    Click <code>Monitors → Add Monitor</code> and set type to <code>HTTP</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">03</span>
+                            <div>
+                                <div class="flow-step-title">Set the Probe URL</div>
+                                <div class="flow-step-desc">
+                                    Set path to <code>/slb/health/probe</code> and expected
+                                    response code to <code>200</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">04</span>
+                            <div>
+                                <div class="flow-step-title">Set Intervals</div>
+                                <div class="flow-step-desc">
+                                    Recommended: interval <code>10s</code>, timeout <code>5s</code>,
+                                    healthy threshold <code>2</code>, unhealthy threshold <code>3</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step blocked">
+                            <span class="flow-step-num">✓</span>
+                            <div>
+                                <div class="flow-step-title">Backend is now monitored</div>
+                                <div class="flow-step-desc">
+                                    Haltdos will probe every 10 seconds and route traffic only
+                                    when this endpoint responds with 200 OK
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-right">
+
+            <!-- Live probe result -->
+            <div id="probeResult" style="display:none;">
+                <div class="result success">
+                    <div class="result-bar">
+                        <span class="result-bar-dot"></span>
+                        Probe Response — 200 OK
+                    </div>
+                    <div class="result-body">
+                        <div class="output-box">
+                            <div class="output-box-bar">
+                                <span class="output-box-label">Response JSON</span>
+                                <span class="output-box-status badge-green">healthy</span>
+                            </div>
+                            <div class="output-box-body">
+                                <pre class="output-pre" id="probeJson">—</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- What each field means -->
+            <div class="panel">
+                <div class="panel-header">Probe Response Fields</div>
+                <div class="panel-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                                <th>Meaning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>status</code></td>
+                                <td><code>healthy</code></td>
+                                <td>Server is ready to receive traffic</td>
+                            </tr>
+                            <tr>
+                                <td><code>server</code></td>
+                                <td><code>WAF-Lab-Backend</code></td>
+                                <td>Identity of this backend instance</td>
+                            </tr>
+                            <tr>
+                                <td><code>uptime</code></td>
+                                <td><code>simulated</code></td>
+                                <td>In production this would be real uptime</td>
+                            </tr>
+                            <tr>
+                                <td><code>timestamp</code></td>
+                                <td><code>unix time</code></td>
+                                <td>When the probe was answered — Haltdos logs this</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Health check types Haltdos supports -->
+            <div class="panel">
+                <div class="panel-header">Haltdos Monitor Types</div>
+                <div class="panel-body">
+                    <div class="waf-guide-list">
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>HTTP / HTTPS</code> — Sends a GET request and checks the status code. This is
+                                what we use here.</span>
+                        </div>
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>TCP</code> — Just checks if the port is open. No HTTP needed.</span>
+                        </div>
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>SSL Hello</code> — Checks if the server responds to a TLS handshake.</span>
+                        </div>
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>SMTP / POP</code> — For mail server backends.</span>
+                        </div>
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>Custom Script</code> — Run your own shell script as a health check. Most
+                                flexible option.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note box -->
+            <div class="note-box">
+                <strong>Why this matters —</strong> If your backend goes down and there is no health
+                monitor configured, Haltdos keeps sending traffic to it and users get errors.
+                With a monitor configured, Haltdos detects the failure within seconds and
+                automatically stops sending traffic until the server recovers.
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — SLB Health Monitor</span>
+        <span class="footer-right" style="color:var(--blue);">Haltdos ADC</span>
+    </footer>
+
+    <script>
+        document.getElementById('btnProbe').addEventListener('click', async () => {
+            const btn = document.getElementById('btnProbe');
+            const resultBox = document.getElementById('probeResult');
+            const jsonBox = document.getElementById('probeJson');
+
+            btn.textContent = 'Probing...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/slb/health/probe');
+                const data = await res.json();
+
+                jsonBox.textContent = JSON.stringify(data, null, 2);
+                resultBox.style.display = 'block';
+                btn.textContent = '✓ Probe Successful';
+                btn.style.background = 'var(--green)';
+
+            } catch (err) {
+                jsonBox.textContent = 'Error: ' + err.message;
+                resultBox.style.display = 'block';
+                btn.textContent = 'Probe Failed';
+                btn.style.background = 'var(--red)';
+            }
+
+            setTimeout(() => {
+                btn.textContent = 'Fire Health Probe';
+                btn.disabled = false;
+                btn.style.background = '';
+            }, 3000);
+        });
+    </script>
+
+</body>
+
+</html>

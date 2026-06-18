@@ -6,23 +6,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vulnerability Lab — WAF Test Lab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
-  
+
   <style>
-        #backbtn {
-          display: inline-block;
-          margin-top: 20px;
-          padding: 10px 15px;
-          background-color: #eee;
-          color: #333;
-          border-radius: 5px;
-          text-decoration: none;
-          font-weight: 500;
-          position: relative;
-          left: 1px;
-          top: 1px;
-        }
+    #backbtn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #eee;
+      color: #333;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+      left: 1px;
+      top: 1px;
+    }
   </style>
 </head>
 
@@ -48,11 +50,11 @@
       <h1 class="home-title">Vulnerability Lab</h1>
       <p class="home-desc">
         An intentionally vulnerable application built as a WAF testing target.
-        Six isolated modules, each exposing a distinct OWASP Top 10 attack surface.
+        Seven isolated modules, each exposing a distinct OWASP Top 10 attack surface.
       </p>
       <a href="/" class="back-link">← Back to Dashboard</a>
     </div>
-    
+
     <!-- GRID -->
     <div class="lab-cards">
 
@@ -112,7 +114,8 @@
         <div class="lab-card-title">Command Injection</div>
         <div class="lab-card-desc">
           Host input passed directly into a shell command via <code>subprocess</code>.
-          Shell metacharacters like <code>; id</code>, <code>&amp;&amp; cat /etc/passwd</code>, and <code>$()</code> execute freely.
+          Shell metacharacters like <code>; id</code>, <code>&amp;&amp; cat /etc/passwd</code>, and <code>$()</code>
+          execute freely.
         </div>
         <div class="lab-card-footer">
           <span class="lab-card-route">/vuln/cmdi</span>
@@ -152,6 +155,23 @@
         </div>
       </a>
 
+      <a href="/vuln/xxe" class="lab-card" style="text-decoration:none;color:inherit;">
+        <div class="lab-card-top">
+          <span class="lab-card-num">07</span>
+          <span class="severity sev-high">High</span>
+        </div>
+        <div class="lab-card-title">XML External Entity Injection</div>
+        <div class="lab-card-desc">
+          Any user-supplied XML is parsed server-side via <code>xml.etree.ElementTree</code>.
+          Exploit vulnerable DTD declarations to read local files or perform SSRF.
+          Probe internal services, cloud metadata endpoints, and private network ranges.
+        </div>
+        <div class="lab-card-footer">
+          <span class="lab-card-route">/vuln/ssrf</span>
+          <span class="lab-card-arrow">↗</span>
+        </div>
+      </a>
+
     </div>
 
   </div>
@@ -176,4 +196,5 @@
   </footer>
 
 </body>
+
 </html>

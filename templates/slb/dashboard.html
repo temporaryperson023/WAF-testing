@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SLB Lab — WAF Test Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/'" style="cursor:pointer;">
+            <div class="nav-brand-dot blue"></div>
+            SLB Lab
+        </div>
+        <div class="nav-links">
+            <a href="/slb/health" class="nav-link">Health</a>
+            <a href="/slb/lb-algo" class="nav-link">LB Algorithm</a>
+            <a href="/slb/sticky" class="nav-link">Sticky Sessions</a>
+            <a href="/slb/failover" class="nav-link">Failover</a>
+            <a href="/slb/server-info" class="nav-link">Server Info</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="home-main">
+        <div class="home-hero">
+            <div class="home-label">
+                <span class="home-label-dot" style="background: var(--blue);"></span>
+                Haltdos ADC / SLB
+            </div>
+            <h1 class="home-title">Server Load Balancer Lab</h1>
+            <p class="home-desc">
+                A dedicated testing environment for Haltdos SLB features — health monitors,
+                load balancing algorithms, sticky sessions, and failover simulation.
+                Each module isolates one SLB behaviour so you can configure and verify
+                Haltdos ADC rules with precision.
+            </p>
+        </div>
+
+        <!-- MODULE CARDS -->
+        <div class="lab-cards" style="grid-template-columns: repeat(3, 1fr);">
+
+            <a href="/slb/health" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">01</span>
+                    <span class="severity"
+                        style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);">Monitor</span>
+                </div>
+                <div class="lab-card-title">Health Monitor</div>
+                <div class="lab-card-desc">
+                    A dedicated probe endpoint that Haltdos health monitors can target.
+                    Returns <code>200 OK</code> with a JSON status payload. Used to mark
+                    backends as healthy before traffic is routed to them.
+                </div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/slb/health</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
+
+            <a href="/slb/lb-algo" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">02</span>
+                    <span class="severity"
+                        style="background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);">Algorithm</span>
+                </div>
+                <div class="lab-card-title">LB Algorithm</div>
+                <div class="lab-card-desc">
+                    Simulate five Haltdos load balancing algorithms — Round Robin,
+                    Least Connections, IP Hash, Weighted, and Random. See in real time
+                    which server gets selected and exactly why.
+                </div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/slb/lb-algo</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
+
+            <a href="/slb/sticky" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">03</span>
+                    <span class="severity"
+                        style="background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);">Session</span>
+                </div>
+                <div class="lab-card-title">Sticky Sessions</div>
+                <div class="lab-card-desc">
+                    Tests Haltdos session persistence — once a client is pinned to a
+                    backend server, all subsequent requests from that client go to the
+                    same server. Clear the session cookie to test re-assignment.
+                </div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/slb/sticky</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
+
+            <a href="/slb/failover" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">04</span>
+                    <span class="severity"
+                        style="background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border);">Failover</span>
+                </div>
+                <div class="lab-card-title">Failover Simulator</div>
+                <div class="lab-card-desc">
+                    Manually take servers up or down to simulate backend failures.
+                    Verify that Haltdos correctly removes unhealthy servers from the
+                    pool and redistributes traffic to remaining healthy ones.
+                </div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/slb/failover</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
+
+            <a href="/slb/server-info" class="lab-card" style="text-decoration:none;color:inherit;">
+                <div class="lab-card-top">
+                    <span class="lab-card-num">05</span>
+                    <span class="severity"
+                        style="background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);">Identity</span>
+                </div>
+                <div class="lab-card-title">Server Identity</div>
+                <div class="lab-card-desc">
+                    Reveals which backend server in the pool served your request —
+                    server ID, IP, zone, and client details. Useful for verifying
+                    that Haltdos is distributing traffic across the correct servers.
+                </div>
+                <div class="lab-card-footer">
+                    <span class="lab-card-route">/slb/server-info</span>
+                    <span class="lab-card-arrow">↗</span>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- INFO BAR -->
+        <div class="info-section">
+            <div class="info-bar">
+                <div class="info-bar-marker" style="background: var(--blue);"></div>
+                <div class="info-bar-text">
+                    <strong>How to use this lab with Haltdos —</strong>
+                    Deploy this app as a backend server in your Haltdos ADC listener.
+                    Add <code>/slb/health/probe</code> as the health monitor URL.
+                    Then use each module to test and verify the SLB behaviour
+                    you have configured in the Haltdos console.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — SLB Module</span>
+        <span class="footer-right" style="color: var(--blue);">Haltdos ADC</span>
+    </footer>
+
+</body>
+
+</html>

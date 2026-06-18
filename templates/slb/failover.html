@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Failover Simulator — SLB Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/slb/'" style="cursor:pointer;">
+            <div class="nav-brand-dot blue"></div>
+            SLB Lab
+        </div>
+        <div class="nav-links">
+            <a href="/slb/health" class="nav-link">Health</a>
+            <a href="/slb/lb-algo" class="nav-link">LB Algorithm</a>
+            <a href="/slb/sticky" class="nav-link">Sticky Sessions</a>
+            <a href="/slb/failover" class="nav-link active">Failover</a>
+            <a href="/slb/server-info" class="nav-link">Server Info</a>
+        </div>
+    </nav>
+
+    <!-- PAGE -->
+    <main class="page">
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <a href="/slb/" class="back-link">← Back to SLB Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-slb">SLB Module 04</span>
+                <span class="tag tag-owasp">Haltdos ADC — High Availability</span>
+            </div>
+            <h1 class="page-title">Failover Simulator</h1>
+            <p class="page-desc">
+                Manually take backend servers up or down to simulate real failure scenarios.
+                Watch how the healthy pool shrinks and expands, and verify that Haltdos
+                correctly stops routing traffic to downed servers.
+            </p>
+        </div>
+
+        <!-- LEFT -->
+        <div class="col-left">
+
+            <!-- Server pool controls -->
+            <div class="panel">
+                <div class="panel-header">Server Pool — Manual Controls</div>
+                <div class="panel-body">
+                    <div class="server-grid">
+                        {% for s in servers %}
+                        <div class="server-card">
+                            <div class="server-card-left">
+                                <span
+                                    class="server-status-dot {{ 'down' if s.id in downed_servers else 'healthy' }}"></span>
+                                <div>
+                                    <div class="server-id">{{ s.id }}</div>
+                                    <div class="server-meta">{{ s.ip }}:{{ s.port }} · {{ s.zone }}</div>
+                                </div>
+                            </div>
+                            <div class="server-card-right">
+                                <span class="server-zone">w={{ s.weight }}</span>
+                                {% if s.id in downed_servers %}
+                                <form method="POST" style="margin:0;">
+                                    <input type="hidden" name="action" value="up">
+                                    <input type="hidden" name="server_id" value="{{ s.id }}">
+                                    <button type="submit" class="btn-server-up">Bring Up ↑</button>
+                                </form>
+                                {% else %}
+                                <form method="POST" style="margin:0;">
+                                    <input type="hidden" name="action" value="down">
+                                    <input type="hidden" name="server_id" value="{{ s.id }}">
+                                    <button type="submit" class="btn-server-down">Take Down ↓</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pool status check -->
+            <div class="panel">
+                <div class="panel-header">Check Pool Status</div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:1rem;">
+                    <p style="font-size:0.86rem;color:var(--text-2);font-weight:300;line-height:1.65;">
+                        Get a snapshot of the current pool — how many servers are healthy,
+                        which ones are down, and what Haltdos would route traffic to right now.
+                    </p>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="status">
+                        <button class="btn btn-primary" type="submit">Check Pool Status</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Haltdos failover config -->
+            <div class="panel">
+                <div class="panel-header">Haltdos Failover Configuration</div>
+                <div class="panel-body">
+                    <div class="flow">
+                        <div class="flow-step">
+                            <span class="flow-step-num">01</span>
+                            <div>
+                                <div class="flow-step-title">Health Monitor Must Be Active</div>
+                                <div class="flow-step-desc">
+                                    Failover only works if a health monitor is configured.
+                                    Without it, Haltdos cannot detect that a server is down.
+                                    Use <code>/slb/health/probe</code> as the monitor endpoint.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">02</span>
+                            <div>
+                                <div class="flow-step-title">Set Unhealthy Threshold</div>
+                                <div class="flow-step-desc">
+                                    In Haltdos set <code>Unhealthy Threshold = 3</code> — server
+                                    is marked down only after 3 consecutive failed probes.
+                                    Prevents false positives from brief network hiccups.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">03</span>
+                            <div>
+                                <div class="flow-step-title">Set Healthy Threshold</div>
+                                <div class="flow-step-desc">
+                                    Set <code>Healthy Threshold = 2</code> — server is added back
+                                    to the pool only after 2 consecutive successful probes.
+                                    Prevents flapping (server going up and down repeatedly).
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step blocked">
+                            <span class="flow-step-num">✓</span>
+                            <div>
+                                <div class="flow-step-title">Automatic Failover Active</div>
+                                <div class="flow-step-desc">
+                                    Haltdos now handles failures automatically — no manual
+                                    intervention needed when a backend server goes down
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-right">
+
+            <!-- Current pool status bar -->
+            {% set healthy_count = servers|length - downed_servers|length %}
+            {% set total = servers|length %}
+
+            <div class="pool-bar">
+                <span class="pool-bar-label">Active Pool</span>
+                <span class="pool-bar-count
+          {% if healthy_count == total %}healthy
+          {% elif healthy_count > 0 %}degraded
+          {% else %}critical{% endif %}">
+                    {{ healthy_count }} / {{ total }} servers healthy
+                </span>
+            </div>
+
+            <!-- Result of last action -->
+            {% if result %}
+
+            {% if result.action == 'Server taken DOWN' %}
+            <div class="result fail">
+                <div class="result-bar">
+                    <span class="result-bar-dot"></span>
+                    {{ result.action }}
+                </div>
+                <div class="result-body">
+                    <div class="result-msg">{{ result.message }}</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Server taken down</td>
+                                <td><code>{{ result.server_id }}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Healthy pool now</td>
+                                <td>
+                                    {% for sid in result.healthy_pool %}
+                                    <code>{{ sid }}</code>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% elif result.action == 'Server brought UP' %}
+            <div class="result success">
+                <div class="result-bar">
+                    <span class="result-bar-dot"></span>
+                    {{ result.action }}
+                </div>
+                <div class="result-body">
+                    <div class="result-msg">{{ result.message }}</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Server restored</td>
+                                <td><code>{{ result.server_id }}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Healthy pool now</td>
+                                <td>
+                                    {% for sid in result.healthy_pool %}
+                                    <code>{{ sid }}</code>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% elif result.action == 'Pool Status' %}
+            <div class="result success">
+                <div class="result-bar">
+                    <span class="result-bar-dot"></span>
+                    Pool Status Snapshot
+                </div>
+                <div class="result-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Total servers</td>
+                                <td>{{ result.total_servers }}</td>
+                            </tr>
+                            <tr>
+                                <td>Healthy servers</td>
+                                <td>
+                                    {% if result.healthy_servers %}
+                                    {% for sid in result.healthy_servers %}
+                                    <code style="color:var(--green);">{{ sid }}</code>
+                                    {% endfor %}
+                                    {% else %}
+                                    <span style="color:var(--red);">None — all servers down!</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Downed servers</td>
+                                <td>
+                                    {% if result.downed_servers %}
+                                    {% for sid in result.downed_servers %}
+                                    <code style="color:var(--red);">{{ sid }}</code>
+                                    {% endfor %}
+                                    {% else %}
+                                    <span style="color:var(--green);">None</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="note-box" style="border-left-color:var(--orange);">
+                <strong>How to test —</strong> Click <strong>Take Down ↓</strong> on any server
+                and watch the pool shrink. Then go to the
+                <a href="/slb/lb-algo" style="color:var(--blue);">LB Algorithm</a> module
+                and send requests — the downed server will never be selected.
+                Come back here and click <strong>Bring Up ↑</strong> to restore it.
+            </div>
+            {% endif %}
+
+            <!-- What happens with zero healthy servers -->
+            <div class="panel">
+                <div class="panel-header">⚠️ What Happens if ALL Servers Go Down?</div>
+                <div class="panel-body">
+                    <div class="flow">
+                        <div class="flow-step vuln">
+                            <span class="flow-step-num">!</span>
+                            <div>
+                                <div class="flow-step-title">Zero healthy servers in pool</div>
+                                <div class="flow-step-desc">
+                                    All backends are down — Haltdos has nowhere to route traffic
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">02</span>
+                            <div>
+                                <div class="flow-step-title">Haltdos returns 502 / 503</div>
+                                <div class="flow-step-desc">
+                                    Users see a <code>502 Bad Gateway</code> or <code>503 Service Unavailable</code>
+                                    — Haltdos itself is still up, but no backend can serve the request
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step blocked">
+                            <span class="flow-step-num">✓</span>
+                            <div>
+                                <div class="flow-step-title">Custom error page kicks in</div>
+                                <div class="flow-step-desc">
+                                    Configure a custom error page in Haltdos so users see a
+                                    friendly message instead of a raw error code
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>Haltdos tip —</strong> Always configure at least 2 servers in your
+                pool for high availability. One server going down should never cause
+                an outage — the other server absorbs the traffic automatically.
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — SLB Failover Simulator</span>
+        <span class="footer-right" style="color:var(--blue);">Haltdos ADC</span>
+    </footer>
+
+</body>
+
+</html>

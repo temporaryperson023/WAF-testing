@@ -1,14 +1,17 @@
 from flask import Flask, render_template
 from vuln_app import vuln_bp
 from rules_app import rules_bp
+from slb_app import slb_bp
 
 app = Flask(__name__)
+app.secret_key = 'waf-lab-slb-secret-key-2024'
 
 # Register Blueprint
 app.register_blueprint(vuln_bp)
 
 app.register_blueprint(rules_bp)
 
+app.register_blueprint(slb_bp)
 # Homepage
 @app.route('/')
 def home():

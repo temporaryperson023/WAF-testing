@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request
 import sqlite3
 import subprocess
 import requests
+from lxml import etree
 
 vuln_bp = Blueprint('vuln', __name__, url_prefix='/vuln')
 
@@ -173,3 +174,28 @@ def sqli():
             }
 
     return render_template('vuln/sqli.html', result=result, query_shown=query_shown)
+
+@vuln_bp.route('/xxe', methods=['GET', 'POST'])
+def xxe():
+    result = None
+    error = None
+    raw_xml = ''
+
+    if request.method == 'POST':
+        raw_xml = request.form.get('xml_input', '')
+        try:
+            # ❌ INTENTIONALLY UNSAFE — resolve_entities=True allows XXE
+            parser = etree.XMLParser(resolve_entities=True, no_network=False)
+            tree = etree.fromstring(raw_xml.encode(), parser)
+
+            result = {}
+            for element in tree.iter():
+                if element.text and element.text.strip():
+                    result[element.tag] = element.text.strip()
+
+        except etree.XMLSyntaxError as e:
+            error = f"XML Parsing Error: {str(e)}"
+        except Exception as e:
+            error = f"Error: {str(e)}"
+
+    return render_template('vuln/xxe.html', result=result, error=error, raw_xml=raw_xml)

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LB Algorithm — SLB Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/slb/'" style="cursor:pointer;">
+            <div class="nav-brand-dot blue"></div>
+            SLB Lab
+        </div>
+        <div class="nav-links">
+            <a href="/slb/health" class="nav-link">Health</a>
+            <a href="/slb/lb-algo" class="nav-link active">LB Algorithm</a>
+            <a href="/slb/sticky" class="nav-link">Sticky Sessions</a>
+            <a href="/slb/failover" class="nav-link">Failover</a>
+            <a href="/slb/server-info" class="nav-link">Server Info</a>
+        </div>
+    </nav>
+
+    <!-- PAGE -->
+    <main class="page">
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <a href="/slb/" class="back-link">← Back to SLB Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-slb">SLB Module 02</span>
+                <span class="tag tag-owasp">Haltdos ADC — Load Balancing</span>
+            </div>
+            <h1 class="page-title">LB Algorithm Simulator</h1>
+            <p class="page-desc">
+                Select a load balancing algorithm, hit Send Request, and watch which
+                backend server gets selected — and exactly why. Hit it multiple times
+                to see the distribution pattern each algorithm produces.
+            </p>
+        </div>
+
+        <!-- LEFT -->
+        <div class="col-left">
+
+            <div class="panel">
+                <div class="panel-header">Select Algorithm</div>
+                <div class="panel-body">
+                    <form method="POST" id="algoForm" style="display:flex;flex-direction:column;gap:1.25rem;">
+
+                        <div class="algo-grid">
+
+                            <label class="algo-card {% if selected_algo == 'round_robin' %}selected{% endif %}">
+                                <input type="radio" name="algorithm" value="round_robin" {% if
+                                    selected_algo=='round_robin' or not selected_algo %}checked{% endif %}>
+                                <div class="algo-card-name">Round Robin</div>
+                                <div class="algo-card-desc">Rotates through all servers one by one in order</div>
+                            </label>
+
+                            <label class="algo-card {% if selected_algo == 'least_connections' %}selected{% endif %}">
+                                <input type="radio" name="algorithm" value="least_connections" {% if
+                                    selected_algo=='least_connections' %}checked{% endif %}>
+                                <div class="algo-card-name">Least Connections</div>
+                                <div class="algo-card-desc">Picks the server with fewest active connections</div>
+                            </label>
+
+                            <label class="algo-card {% if selected_algo == 'ip_hash' %}selected{% endif %}">
+                                <input type="radio" name="algorithm" value="ip_hash" {% if selected_algo=='ip_hash'
+                                    %}checked{% endif %}>
+                                <div class="algo-card-name">IP Hash</div>
+                                <div class="algo-card-desc">Your IP always maps to the same server — sticky</div>
+                            </label>
+
+                            <label class="algo-card {% if selected_algo == 'weighted' %}selected{% endif %}">
+                                <input type="radio" name="algorithm" value="weighted" {% if selected_algo=='weighted'
+                                    %}checked{% endif %}>
+                                <div class="algo-card-name">Weighted</div>
+                                <div class="algo-card-desc">Higher weight servers get more traffic share</div>
+                            </label>
+
+                            <label class="algo-card {% if selected_algo == 'random' %}selected{% endif %}">
+                                <input type="radio" name="algorithm" value="random" {% if selected_algo=='random'
+                                    %}checked{% endif %}>
+                                <div class="algo-card-name">Random</div>
+                                <div class="algo-card-desc">Server picked at random from healthy pool</div>
+                            </label>
+
+                        </div>
+
+                        <button class="btn btn-primary" type="submit">Send Request →</button>
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- Server pool -->
+            <div class="panel">
+                <div class="panel-header">Server Pool</div>
+                <div class="panel-body">
+                    <div class="server-grid">
+                        {% for s in servers %}
+                        <div class="server-card">
+                            <div class="server-card-left">
+                                <span class="server-status-dot healthy"></span>
+                                <div>
+                                    <div class="server-id">{{ s.id }}</div>
+                                    <div class="server-meta">{{ s.ip }}:{{ s.port }}</div>
+                                </div>
+                            </div>
+                            <div class="server-card-right">
+                                <span class="server-zone">{{ s.zone }}</span>
+                                <span class="server-weight">w={{ s.weight }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-right">
+
+            {% if result %}
+
+            {% if result.error %}
+            <div class="result fail">
+                <div class="result-bar">
+                    <span class="result-bar-dot"></span>
+                    No Healthy Servers
+                </div>
+                <div class="result-body">
+                    <div class="result-msg">{{ result.error }}</div>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- Selected server highlight -->
+            <div class="selected-server-box">
+                <div class="selected-server-label">Selected Server</div>
+                <div class="selected-server-id">{{ result.selected.id }}</div>
+                <div class="selected-server-meta">
+                    {{ result.selected.ip }}:{{ result.selected.port }} &nbsp;·&nbsp;
+                    {{ result.selected.zone }} &nbsp;·&nbsp;
+                    weight {{ result.selected.weight }}
+                </div>
+                <div class="selected-server-reason">
+                    {{ result.reason }}
+                </div>
+            </div>
+
+            <!-- Algorithm details -->
+            <div class="result success">
+                <div class="result-bar">
+                    <span class="result-bar-dot"></span>
+                    {{ result.algorithm }}
+                </div>
+                <div class="result-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Algorithm</td>
+                                <td>{{ result.algorithm }}</td>
+                            </tr>
+                            <tr>
+                                <td>Server ID</td>
+                                <td><code>{{ result.selected.id }}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Server IP</td>
+                                <td><code>{{ result.selected.ip }}:{{ result.selected.port }}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Zone</td>
+                                <td>{{ result.selected.zone }}</td>
+                            </tr>
+                            {% if result.connections %}
+                            <tr>
+                                <td>Connection counts</td>
+                                <td>
+                                    {% for sid, count in result.connections.items() %}
+                                    <code>{{ sid }}: {{ count }}</code><br>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% if result.hash %}
+                            <tr>
+                                <td>IP Hash</td>
+                                <td><code>{{ result.hash }}</code></td>
+                            </tr>
+                            {% endif %}
+                            {% if result.weights %}
+                            <tr>
+                                <td>Weights</td>
+                                <td>
+                                    {% for sid, w in result.weights.items() %}
+                                    <code>{{ sid }}: {{ w }}</code><br>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="note-box" style="border-left-color: var(--blue);">
+                <strong>How to use —</strong> Pick an algorithm on the left and click
+                <strong>Send Request</strong>. Hit it multiple times to see the pattern.
+                Try <strong>Round Robin</strong> first — you'll see the server rotating
+                with each click. Then try <strong>IP Hash</strong> — notice it always
+                picks the same server for your IP.
+            </div>
+            {% endif %}
+
+            <!-- Algorithm explanation cards -->
+            <div class="panel">
+                <div class="panel-header">Algorithm Guide</div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:1rem;">
+
+                    <div class="flow">
+                        <div class="flow-step">
+                            <span class="flow-step-num">RR</span>
+                            <div>
+                                <div class="flow-step-title">Round Robin</div>
+                                <div class="flow-step-desc">
+                                    Request 1 → server-01, Request 2 → server-02, Request 3 → server-03,
+                                    Request 4 → server-01 again. Good for servers with equal capacity.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">LC</span>
+                            <div>
+                                <div class="flow-step-title">Least Connections</div>
+                                <div class="flow-step-desc">
+                                    Sends each new request to whichever server is currently handling
+                                    the fewest connections. Best when requests have varying response times.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">IH</span>
+                            <div>
+                                <div class="flow-step-title">IP Hash</div>
+                                <div class="flow-step-desc">
+                                    Hashes the client's IP address to always route them to the same server.
+                                    Provides natural session stickiness without cookies.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">WR</span>
+                            <div>
+                                <div class="flow-step-title">Weighted Round Robin</div>
+                                <div class="flow-step-desc">
+                                    Like Round Robin but servers with higher weight receive proportionally
+                                    more requests. Use when servers have different CPU/RAM capacity.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">RN</span>
+                            <div>
+                                <div class="flow-step-title">Random</div>
+                                <div class="flow-step-desc">
+                                    Picks a server randomly. Simple and works well when all servers
+                                    are identical and stateless.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>Haltdos tip —</strong> In the Haltdos console go to
+                <code>ADC → Listeners → Server Groups → Load Balancing</code> to set
+                the algorithm. Changes take effect immediately without restarting the listener.
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — SLB LB Algorithm</span>
+        <span class="footer-right" style="color:var(--blue);">Haltdos ADC</span>
+    </footer>
+
+    <script>
+        // Highlight selected algo card on click
+        document.querySelectorAll('.algo-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.algo-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+            });
+        });
+    </script>
+
+</body>
+
+</html>

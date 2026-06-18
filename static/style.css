@@ -2809,3 +2809,305 @@ body {
 .quickfill-btn.used {
   background: var(--green);
 }
+
+
+
+/* ===============================================================
+   SLB LAB — ADDITIONS TO style.css
+   Append these to the bottom of your existing style.css
+   =============================================================== */
+
+/* ── SLB nav accent ──────────────────────────────────────────── */
+.tag-slb {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid var(--blue-border);
+}
+
+.badge-blue {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid var(--blue-border);
+}
+
+.nav-brand-dot.blue {
+  background: var(--blue);
+}
+
+/* ── Server status cards ─────────────────────────────────────── */
+.server-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.server-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 1.1rem;
+  gap: 1rem;
+  transition: background 0.15s;
+}
+
+.server-card:hover {
+  background: var(--bg);
+}
+
+.server-card-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.server-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.server-status-dot.healthy {
+  background: var(--green);
+  box-shadow: 0 0 0 3px var(--green-bg);
+}
+
+.server-status-dot.down {
+  background: var(--red);
+  box-shadow: 0 0 0 3px var(--red-bg);
+}
+
+.server-id {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.server-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-3);
+  margin-top: 0.1rem;
+}
+
+.server-card-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.server-zone {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-3);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 0.18em 0.65em;
+}
+
+.server-weight {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--blue);
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: 100px;
+  padding: 0.18em 0.65em;
+}
+
+.btn-server-down {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--red);
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: 6px;
+  padding: 0.3em 0.75em;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-server-down:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+.btn-server-up {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--green);
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 6px;
+  padding: 0.3em 0.75em;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-server-up:hover {
+  background: var(--green);
+  color: #fff;
+}
+
+/* ── Algorithm selector ──────────────────────────────────────── */
+.algo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.algo-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  background: var(--surface);
+  position: relative;
+}
+
+.algo-card:hover {
+  border-color: var(--text-3);
+  background: var(--bg);
+}
+
+.algo-card.selected {
+  border-color: var(--blue);
+  background: var(--blue-bg);
+}
+
+.algo-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.algo-card-name {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.algo-card.selected .algo-card-name {
+  color: var(--blue);
+}
+
+.algo-card-desc {
+  font-size: 0.76rem;
+  color: var(--text-3);
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+/* ── Result server highlight ─────────────────────────────────── */
+.selected-server-box {
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.selected-server-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+}
+
+.selected-server-id {
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.selected-server-meta {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-2);
+  line-height: 1.65;
+}
+
+.selected-server-reason {
+  font-size: 0.84rem;
+  color: var(--text-2);
+  font-weight: 300;
+  line-height: 1.6;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--blue-border);
+}
+
+/* ── Sticky session badge ────────────────────────────────────── */
+.session-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+  border-radius: 100px;
+  padding: 0.3em 0.85em;
+}
+
+.session-badge.new {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border-color: var(--blue-border);
+}
+
+/* ── Pool status bar ─────────────────────────────────────────── */
+.pool-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 1.1rem;
+  gap: 1rem;
+}
+
+.pool-bar-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+.pool-bar-count {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.pool-bar-count.healthy {
+  color: var(--green);
+}
+
+.pool-bar-count.degraded {
+  color: var(--orange);
+}
+
+.pool-bar-count.critical {
+  color: var(--red);
+}

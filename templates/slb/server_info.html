@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Server Identity — SLB Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-brand" onclick="location.href='/slb/'" style="cursor:pointer;">
+            <div class="nav-brand-dot blue"></div>
+            SLB Lab
+        </div>
+        <div class="nav-links">
+            <a href="/slb/health" class="nav-link">Health</a>
+            <a href="/slb/lb-algo" class="nav-link">LB Algorithm</a>
+            <a href="/slb/sticky" class="nav-link">Sticky Sessions</a>
+            <a href="/slb/failover" class="nav-link">Failover</a>
+            <a href="/slb/server-info" class="nav-link active">Server Info</a>
+        </div>
+    </nav>
+
+    <!-- PAGE -->
+    <main class="page">
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <a href="/slb/" class="back-link">← Back to SLB Dashboard</a>
+            <div class="header-meta">
+                <span class="tag tag-slb">SLB Module 05</span>
+                <span class="tag tag-owasp">Haltdos ADC — Backend Verification</span>
+            </div>
+            <h1 class="page-title">Server Identity</h1>
+            <p class="page-desc">
+                Reveals which backend server in the pool handled your request —
+                server ID, IP address, availability zone, client details, and the
+                full set of request headers Haltdos forwarded to the backend.
+                Refresh the page repeatedly to see load distribution in action.
+            </p>
+        </div>
+
+        <!-- LEFT -->
+        <div class="col-left">
+
+            <!-- Served by -->
+            <div class="selected-server-box">
+                <div class="selected-server-label">This Request Was Served By</div>
+                <div class="selected-server-id">{{ info.served_by }}</div>
+                <div class="selected-server-meta">
+                    {{ info.server_ip }} &nbsp;·&nbsp; {{ info.zone }}
+                </div>
+                <div class="selected-server-reason">
+                    Healthy pool size at time of request: {{ info.healthy_pool_size }} server(s)
+                </div>
+            </div>
+
+            <!-- Request details -->
+            <div class="panel">
+                <div class="panel-header">Request Details</div>
+                <div class="panel-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Server ID</td>
+                                <td><code>{{ info.served_by }}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Server IP</td>
+                                <td><code>{{ info.server_ip }}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Zone</td>
+                                <td><code>{{ info.zone }}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Client IP</td>
+                                <td><code>{{ info.client_ip }}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Pool Size</td>
+                                <td>{{ info.healthy_pool_size }} healthy server(s)</td>
+                            </tr>
+                            <tr>
+                                <td>Timestamp</td>
+                                <td><code id="ts">{{ info.timestamp }}</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Refresh button -->
+            <div class="panel">
+                <div class="panel-header">Test Distribution</div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:1rem;">
+                    <p style="font-size:0.86rem;color:var(--text-2);font-weight:300;line-height:1.65;">
+                        Each page refresh counts as a new request to Haltdos. Refresh
+                        repeatedly to watch the served-by server rotate across the pool
+                        and verify that load is distributing correctly.
+                    </p>
+                    <button class="btn btn-primary" onclick="location.reload()">
+                        Send Another Request ↻
+                    </button>
+                    <a href="/slb/failover" class="btn"
+                        style="background:var(--bg);color:var(--text);border:1px solid var(--border);text-decoration:none;text-align:center;">
+                        Go to Failover → Take a Server Down
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-right">
+
+            <!-- Request headers -->
+            <div class="panel">
+                <div class="panel-header">
+                    Request Headers
+                    <span class="table-badge badge-green">
+                        {{ info.request_headers | length }} headers
+                    </span>
+                </div>
+                <div class="panel-body" style="padding:0;">
+                    <div class="headers-display-body" style="max-height:320px;padding:0.85rem 1.1rem;">
+                        {% for key, value in info.request_headers.items() %}
+                        <div class="header-row">
+                            <span class="header-key">{{ key }}</span>
+                            <span class="header-value">{{ value }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Why headers matter -->
+            <div class="panel">
+                <div class="panel-header">Key Headers Haltdos Adds</div>
+                <div class="panel-body">
+                    <div class="waf-guide-list">
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>X-Forwarded-For</code> — The real client IP before it passed through Haltdos.
+                                Without this your backend only sees Haltdos's IP.</span>
+                        </div>
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>X-Real-IP</code> — Single real client IP — cleaner than X-Forwarded-For for
+                                logging.</span>
+                        </div>
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>X-Forwarded-Proto</code> — Whether the original request was HTTP or HTTPS —
+                                important for redirect logic.</span>
+                        </div>
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>Host</code> — The original hostname the client requested — needed when one
+                                backend serves multiple domains.</span>
+                        </div>
+                        <div class="waf-guide-item">
+                            <span class="waf-guide-item-dot"></span>
+                            <span><code>User-Agent</code> — Passed through from the client — Haltdos uses this for bot
+                                detection rules.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flow -->
+            <div class="panel">
+                <div class="panel-header">Full Request Flow</div>
+                <div class="panel-body">
+                    <div class="flow">
+                        <div class="flow-step">
+                            <span class="flow-step-num">01</span>
+                            <div>
+                                <div class="flow-step-title">Client sends request</div>
+                                <div class="flow-step-desc">
+                                    Browser hits Haltdos on port 80/443 — client IP is <code>{{ info.client_ip }}</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">02</span>
+                            <div>
+                                <div class="flow-step-title">Haltdos WAF inspects</div>
+                                <div class="flow-step-desc">
+                                    WAF rules run — if clean, request is forwarded to the SLB layer
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">03</span>
+                            <div>
+                                <div class="flow-step-title">SLB picks backend</div>
+                                <div class="flow-step-desc">
+                                    Load balancing algorithm selects <code>{{ info.served_by }}</code>
+                                    from {{ info.healthy_pool_size }} healthy server(s)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <span class="flow-step-num">04</span>
+                            <div>
+                                <div class="flow-step-title">Headers injected</div>
+                                <div class="flow-step-desc">
+                                    Haltdos adds <code>X-Forwarded-For</code>, <code>X-Real-IP</code>
+                                    and other headers before forwarding to backend
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-step blocked">
+                            <span class="flow-step-num">✓</span>
+                            <div>
+                                <div class="flow-step-title">Backend responds</div>
+                                <div class="flow-step-desc">
+                                    <code>{{ info.served_by }}</code> at <code>{{ info.server_ip }}</code>
+                                    handles the request and returns the response to Haltdos,
+                                    which forwards it back to the client
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>Haltdos tip —</strong> In production, your backend app should
+                always read <code>X-Forwarded-For</code> instead of the raw client IP
+                for logging and rate limiting — because the raw IP will always be
+                Haltdos's internal IP, not the real user's IP.
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <span class="footer-left">WAF Test Lab — SLB Server Identity</span>
+        <span class="footer-right" style="color:var(--blue);">Haltdos ADC</span>
+    </footer>
+
+    <script>
+        // Convert unix timestamp to readable format
+        const tsEl = document.getElementById('ts');
+        if (tsEl) {
+            const ts = parseFloat(tsEl.textContent);
+            if (!isNaN(ts)) {
+                tsEl.textContent = new Date(ts * 1000).toLocaleString();
+            }
+        }
+    </script>
+
+</body>
+
+</html>
